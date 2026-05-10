@@ -35,13 +35,16 @@ public record HandEvaluator() {
     }
 
     private static boolean isStraight(List<Integer> values) {
+        if (values.size() != 5) {
+            return false;
+        }
         List<Integer> sorted = values.stream().sorted().toList();
-        var normal = IntStream.range(0, 4)
+        var isNormalStraight = IntStream.range(0, 4)
                 .allMatch(i -> sorted.get(i + 1) - sorted.get(i) == 1);
 
-        var wheel = sorted.equals(List.of(2, 3, 4, 5, 14));
+        var isWheel = sorted.equals(List.of(2, 3, 4, 5, 14));
 
-        return normal || wheel;
+        return isNormalStraight || isWheel;
     }
 
     private static Map<Integer, Integer> countByValue(List<Integer> values) {
