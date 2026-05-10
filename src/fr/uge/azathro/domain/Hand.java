@@ -15,4 +15,8 @@ public class Hand {
         cards.forEach(card -> sb.append(card.toString()).append(System.lineSeparator()));
         return sb.toString();
     }
+
+    public List<Card> cards() {
+        return cards;
+    }
 }
