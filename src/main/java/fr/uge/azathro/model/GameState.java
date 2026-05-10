@@ -13,18 +13,17 @@ public class GameState {
         this.deck = deck;
     }
 
-    public void increaseBlindCount(){
+    public void increaseBlindCount() {
         blindCount++;
     }
 
-    public boolean isFinish(){
+    public boolean isFinish() {
         return blindCount == 5;
     }
 
     @Override
     public String toString() {
-        return "GameState{" +
-                "currentBlind=" + currentBlind +
-                ", blindCount=" + blindCount + "}";
+        return "blindCount=" + blindCount + System.lineSeparator() + currentBlind;
+
     }
 }

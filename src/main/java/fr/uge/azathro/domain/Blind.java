@@ -14,4 +14,18 @@ public record Blind(String name, Long score) {
         Objects.requireNonNull(state);
         return state.score() >= score;
     }
+
+
+    @Override
+    public String toString() {
+        return """
+           \s
+              ~~~  %s  ~~~
+             \s
+              ⚝ Seuil: %d ⚝
+             \s
+              "Azathro te lance un défi !"
+           \s
+           \s""".formatted(name, score);
+    }
 }
