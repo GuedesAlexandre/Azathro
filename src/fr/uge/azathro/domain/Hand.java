@@ -2,13 +2,12 @@ package fr.uge.azathro.domain;
 
 import java.util.List;
 
-public record Hand(List<Card> cards) {
-    public Hand{
-        if(cards.isEmpty()){
-            throw new IllegalArgumentException();
-        }
-    }
+public class Hand {
+    private final List<Card> cards;
 
+    public Hand(List<Card> cards) {
+        this.cards = cards;
+    }
     @Override
     public String toString() {
         var sb = new StringBuilder();

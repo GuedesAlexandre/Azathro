@@ -49,7 +49,7 @@ public class Deck {
         Collections.shuffle(decks);
     }
 
-    public List<Card> draw( int size) {
+    public List<Card> draw(int size) {
         if(size>8){throw new IllegalArgumentException("size can't be greater than 8");}
         int toDraw = Math.min(size, decks.size());
         return IntStream.range(0, toDraw)
