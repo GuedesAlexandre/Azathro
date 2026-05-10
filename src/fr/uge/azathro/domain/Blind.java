@@ -1,6 +1,6 @@
-package main.java.fr.uge.azathro.domain;
+package fr.uge.azathro.domain;
 
-import main.java.fr.uge.azathro.model.PlayerState;
+import fr.uge.azathro.model.PlayerState;
 
 import java.util.Objects;
 

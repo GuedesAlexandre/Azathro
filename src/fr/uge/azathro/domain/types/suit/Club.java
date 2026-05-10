@@ -1,4 +1,4 @@
-package main.java.fr.uge.azathro.domain.types.suit;
+package fr.uge.azathro.domain.types.suit;
 
 public record Club() implements Suit {
     @Override

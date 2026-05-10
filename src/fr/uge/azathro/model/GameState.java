@@ -1,7 +1,7 @@
-package main.java.fr.uge.azathro.model;
+package fr.uge.azathro.model;
 
-import main.java.fr.uge.azathro.domain.Blind;
-import main.java.fr.uge.azathro.domain.Deck;
+import fr.uge.azathro.domain.Blind;
+import fr.uge.azathro.domain.Deck;
 
 public class GameState {
     private final Blind currentBlind;

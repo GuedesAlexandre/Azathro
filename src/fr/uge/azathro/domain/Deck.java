@@ -1,7 +1,7 @@
-package main.java.fr.uge.azathro.domain;
+package fr.uge.azathro.domain;
 
-import main.java.fr.uge.azathro.domain.types.rank.*;
-import main.java.fr.uge.azathro.domain.types.suit.*;
+import fr.uge.azathro.domain.types.rank.*;
+import fr.uge.azathro.domain.types.suit.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +16,7 @@ public class Deck {
         createStandardDeck();
     }
 
-    private void addCard(Card card) {
+    public void addCard(Card card) {
         Objects.requireNonNull(card);
         decks.add(card);
     }

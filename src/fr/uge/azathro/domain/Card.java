@@ -1,7 +1,7 @@
-package main.java.fr.uge.azathro.domain;
+package fr.uge.azathro.domain;
 
-import main.java.fr.uge.azathro.domain.types.rank.Rank;
-import main.java.fr.uge.azathro.domain.types.suit.Suit;
+import fr.uge.azathro.domain.types.rank.Rank;
+import fr.uge.azathro.domain.types.suit.Suit;
 
 import java.util.Objects;
 

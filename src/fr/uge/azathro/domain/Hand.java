@@ -1,4 +1,4 @@
-package main.java.fr.uge.azathro.domain;
+package fr.uge.azathro.domain;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package main.java.fr.uge.azathro.domain.types.rank;
+package fr.uge.azathro.domain.types.rank;
 
 public record King(int value) implements Rank {
     public King(){
