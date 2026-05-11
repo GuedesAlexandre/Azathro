@@ -3,6 +3,7 @@ import fr.uge.azathro.domain.Blind;
 import fr.uge.azathro.domain.Deck;
 import fr.uge.azathro.domain.Hand;
 import fr.uge.azathro.model.GameState;
+import fr.uge.azathro.controller.*;
 
 public class Main {
     static void main() {
@@ -20,9 +21,9 @@ public class Main {
                 
                 """);
         var deck = new Deck();
-        var hand = new Hand(deck.draw(8));
-        var gameState = new GameState(new Blind("Small Blind", 10L), deck);
-        IO.println(gameState);
-        IO.println(hand);
+        var blind = new Blind("Small Blind", 100L);
+        var gameState = new GameState(blind, deck);
+        var controller = new GameController(gameState);
+        controller.startGame();
     }
 }
