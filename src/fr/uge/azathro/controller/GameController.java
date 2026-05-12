@@ -33,8 +33,8 @@ public class GameController {
 		} else {
 			IO.println("""
 					\s
-				      Game over! 
-				  \s""");
+					     Game over!
+					 \s""");
 		}
 	}
 
@@ -45,7 +45,7 @@ public class GameController {
 		for (int i = 0; i < drawnCards.size(); i++) {
 			IO.println(i + " - " + drawnCards.get(i));
 		}
-		
+
 		List<Card> selectedCards = selectFiveCards(drawnCards);
 
 		Hand hand = new Hand(selectedCards);
@@ -66,7 +66,7 @@ public class GameController {
 
 	private List<Card> selectFiveCards(List<Card> drawnCards) {
 		List<Card> selected = new ArrayList<>();
-		
+
 		IO.println("\nChoisissez 5 cartes en saisissant les indices correspondants: ");
 
 		while (selected.size() < 5) {
