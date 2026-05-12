@@ -10,9 +10,9 @@ public record Blind(String name, Long score) {
         Objects.requireNonNull(score);
     }
 
-    public boolean isBlinded(PlayerState  state) {
+    public boolean isBlinded(PlayerState state) {
         Objects.requireNonNull(state);
-        return state.score() >= score;
+        return state.totalScore() >= score;
     }
 
 
