@@ -1,6 +1,5 @@
 package fr.uge.azathro.model;
 
-import fr.uge.azathro.domain.Hand;
 
 public class PlayerState {
 	private final String name;
@@ -10,7 +9,7 @@ public class PlayerState {
 	public PlayerState(String name) {
 		this.name = name;
 		this.totalScore = 0;
-		this.round = 4; // 6 rounds/blind
+		this.round = 6; // 6 rounds/blind
 	}
 	
 	public String name() {
@@ -39,7 +38,7 @@ public class PlayerState {
 	
 	
 	public void resetHands() {
-		round = 4; 
+		round = 6; 
 	}
 	
 	@Override
