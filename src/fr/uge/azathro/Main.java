@@ -23,7 +23,7 @@ public class Main {
                 """);
         var deck = new Deck();
         var blind = new Blind("Small Blind", 100L);
-        var playerState = new PlayerState("Alice", 0, 4);
+        var playerState = new PlayerState("Alice");
         var gameState = new GameState(blind, deck, playerState);
         var controller = new GameController(gameState);
         controller.startGame();

@@ -3,15 +3,11 @@ package fr.uge.azathro.model;
 import java.util.Objects;
 
 public record PlayerState(String name, int totalScore, int handCount) {
+	public static final int HANDCOUNT = 4;
 	
-	public PlayerState {
+	public PlayerState(String name) {
 		Objects.requireNonNull(name);
-		if (totalScore < 0) {
-			throw new IllegalArgumentException("Score must be positive");
-		}
-		if (handCount < 0) {
-			throw new IllegalArgumentException("Number of hands remaining must be positive");
-		}
+		this(name, 0, HANDCOUNT);
 	}
 	
 	

@@ -15,6 +15,9 @@ public record HandEvaluator() {
         if (cards.size() < 1 || cards.size() > 5) {
             throw new IllegalArgumentException("cards size must be between 1 and 5");
         }
+        if (cards.size() < 5) {
+        	return new HighCard();
+        }
         var values = cards.stream().map(c -> c.rank().value()).sorted().toList();
         var suits = cards.stream().map(Card::suit).toList();
         var isFlush = suits.stream().distinct().count() == 1;
