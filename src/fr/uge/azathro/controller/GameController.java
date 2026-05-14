@@ -12,41 +12,45 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class GameController {
+	private static final int MAX_HAND_SIZE = 8;
+	private static final int HANDCOUNT = 4;
+
 	private final GameState gameState;
-	private final PlayerState playerState;
 	private final Scanner scanner = new Scanner(System.in);
 
-	public GameController(GameState gameState, PlayerState playerState) {
+	public GameController(GameState gameState) {
 		this.gameState = gameState;
-		this.playerState = playerState;
 	}
 
-	
 	public void startGame() {
-		IO.println(playerState);
 		while (!gameState.isFinished()) {
-			boolean success = playBlind();
-			// blind failed -> game over
-			if (!success) {
+			if (!playBlind()) {
 				return;
 			}
+			
 			gameState.increaseBlindCount();
-			playerState.resetScore();
-			playerState.resetHands();
+			var oldPlayer = gameState.playerState();
+			var newPlayer = new PlayerState(oldPlayer.name(), 0, HANDCOUNT);
+			gameState.updatePlayerState(newPlayer);
+			gameState.deck().createStandardDeck();
+			gameState.setCurrentHand(List.of());
 		}
-		IO.println("Partie terminée! ");
+		IO.println("""
+								\s
+				╔══════════════════════════════╗
+				     ⚝  Partie terminée !  ⚝
+				╚══════════════════════════════╝
+								  \s""");
 	}
-	
 
 	private boolean playBlind() {
 		IO.println(gameState);
-
-		// while Blind isn't cleared and there're still remained rounds -> play round
-		while (!gameState.currentBlind().isBlinded(playerState) && playerState.round() > 0) {
-			playRound();
+		IO.println(gameState.playerState());
+		while (!gameState.currentBlind().isBlinded(gameState.playerState()) && gameState.playerState().handCount() > 0) {
+			playHand();
 		}
 
-		if (gameState.currentBlind().isBlinded(playerState)) {
+		if (gameState.currentBlind().isBlinded(gameState.playerState())) {
 			IO.println("""
 									\s
 					╔══════════════════════════════╗
@@ -58,53 +62,62 @@ public class GameController {
 			IO.println("""
 								\s
 					╔══════════════════════════════╗
-						   ✖  Game Over  ✖
+						  ✖  Game Over  ✖
 					╚══════════════════════════════╝
 								 \s""");
 			return false;
 		}
 	}
 
-	private void playRound() {
-		List<Card> drawnCards = gameState.deck().draw(8); // Draw 8 cards from the deck
+	private void playHand() {
+		var drawnCards = gameState.deck().draw(8);
 
 		IO.println("Cartes piochées :");
-		for (int i = 0; i < drawnCards.size(); i++) {
+		for (var i = 0; i < drawnCards.size(); i++) {
 			IO.println(i + " - " + drawnCards.get(i));
 		}
 
-		List<Card> selectedCards = selectFiveCards(drawnCards); // Select a hand of 5 cards to play
+		var selectedCards = selectCards(drawnCards);
 
-		Hand hand = new Hand(selectedCards);
+		var hand = new Hand(selectedCards);
 		IO.println(hand);
 
-		Combination combination = HandEvaluator.evaluate(hand);
+		var combination = HandEvaluator.evaluate(hand);
 
-		int score = Combination.computeScore(combination);
+		var score = Combination.computeScore(combination);
 
 		IO.println("Combinaison: " + combination.getClass().getSimpleName());
 		IO.println("Score obtenu: " + score);
+		
+		var oldPlayer = gameState.playerState();
+		var updatedPlayer = new PlayerState(oldPlayer.name(), oldPlayer.totalScore() + score, oldPlayer.handCount()-1);
+		
+		gameState.updatePlayerState(updatedPlayer);
 
-		playerState.addScore(score);
-		playerState.decreaseRounds();
-
-		IO.println(playerState);
+		IO.println(gameState.playerState());
 	}
 
-	private List<Card> selectFiveCards(List<Card> drawnCards) {
-		List<Card> selected = new ArrayList<>();
+	private List<Card> selectCards(List<Card> drawnCards) {
+		var selected = new ArrayList<Card>();
 
-		IO.println("\nChoisissez 5 cartes en saisissant les indices correspondants: ");
+		IO.println("""
+				Choisissez entre 1 et 5 cartes.
+				Tapez -1 pour terminer.
+				""");
 
 		while (selected.size() < 5) {
-			int index = scanner.nextInt();
+			var index = scanner.nextInt();
+
+			if (index == -1 && !selected.isEmpty()) {
+				break;
+			}
 
 			if (index < 0 || index >= drawnCards.size()) {
 				IO.println("Indice invalide.");
 				continue;
 			}
 
-			Card chosen = drawnCards.get(index);
+			var chosen = drawnCards.get(index);
 
 			if (selected.contains(chosen)) {
 				IO.println("Carte déjà choisie.");

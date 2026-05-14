@@ -23,9 +23,9 @@ public class Main {
                 """);
         var deck = new Deck();
         var blind = new Blind("Small Blind", 100L);
-        var gameState = new GameState(blind, deck);
-        var playerState = new PlayerState("Alice");
-        var controller = new GameController(gameState, playerState);
+        var playerState = new PlayerState("Alice", 0, 4);
+        var gameState = new GameState(blind, deck, playerState);
+        var controller = new GameController(gameState);
         controller.startGame();
     }
 }

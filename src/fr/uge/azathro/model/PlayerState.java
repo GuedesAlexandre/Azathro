@@ -1,45 +1,19 @@
 package fr.uge.azathro.model;
 
+import java.util.Objects;
 
-public class PlayerState {
-	private final String name;
-	private int totalScore;
-	private int round;
-
-	public PlayerState(String name) {
-		this.name = name;
-		this.totalScore = 0;
-		this.round = 6; // 6 rounds/blind
+public record PlayerState(String name, int totalScore, int handCount) {
+	
+	public PlayerState {
+		Objects.requireNonNull(name);
+		if (totalScore < 0) {
+			throw new IllegalArgumentException("Score must be positive");
+		}
+		if (handCount < 0) {
+			throw new IllegalArgumentException("Number of hands remaining must be positive");
+		}
 	}
 	
-	public String name() {
-		return name;
-	}
-	
-	public int totalScore() {
-		return totalScore;
-	}
-	
-	public int round() {
-		return round;
-	}
-	
-	public void addScore(int score) {
-		totalScore += score;
-	}
-	
-	public void decreaseRounds() {
-		round--;
-	}
-	
-	public void resetScore() {
-		totalScore = 0;
-	}
-	
-	
-	public void resetHands() {
-		round = 6; 
-	}
 	
 	@Override
 	    public String toString() {
@@ -47,8 +21,8 @@ public class PlayerState {
 	        ════════════════════════════════════
 	                Joueur : %s
 	                Score : %d
-	                Tours restants : %d
+	                Mains restants : %d
 	        ════════════════════════════════════
-	                """.formatted(name, totalScore, round);
+	                """.formatted(name, totalScore, handCount);
 	    }
 }
