@@ -10,51 +10,61 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class Deck {
-    private static final ArrayList<Card> decks = new ArrayList<>();
+	private static final ArrayList<Card> deck = new ArrayList<>();
+	private static final ArrayList<Card> discardPile = new ArrayList<>();
 
-    public Deck(){
-        createStandardDeck();
-    }
+	public Deck() {
+		createStandardDeck();
+	}
 
-    public void addCard(Card card) {
-        Objects.requireNonNull(card);
-        decks.add(card);
-    }
+	public int size() {
+		return deck.size();
+	}
 
-    public int size(){
-        return decks.size();
-    }
+	public void createStandardDeck() {
+		deck.clear();
+		discardPile.clear();
+		List<Suit> suits = List.of(new Club(), new Diamond(), new Heart(), new Spade());
+		for (Suit suit : suits) {
+			deck.add(new Card(suit, new Ace()));
+			deck.add(new Card(suit, new King()));
+			deck.add(new Card(suit, new Queen()));
+			deck.add(new Card(suit, new Jack()));
 
-    public void clear(){
-        if(size()<5){
-            decks.clear();
-            createStandardDeck();
-        }
-    }
+			for (int value = 2; value <= 10; value++) {
+				deck.add(new Card(suit, new NumericRank(value)));
+			}
+		}
 
+		Collections.shuffle(deck);
+	}
 
-    public static void createStandardDeck() {
-        List<Suit> suits = List.of(new Club(), new Diamond(), new Heart(), new Spade());
-        for (Suit suit : suits) {
-            decks.add(new Card(suit, new Ace()));
-            decks.add(new Card(suit, new King()));
-            decks.add(new Card(suit, new Queen()));
-            decks.add(new Card(suit, new Jack()));
+	public List<Card> draw(int size) {
+		if (size < 0 || size > 8) {
+			throw new IllegalArgumentException("size must be between 0 and 8");
+		}
+		
+		refillDeck(size);
+		
+		int toDraw = Math.min(size, deck.size());
+		return IntStream.range(0, toDraw).mapToObj(_ -> deck.removeLast()).toList();
+	}
 
-            for (int value = 2; value <= 10; value++) {
-                decks.add(new Card(suit, new NumericRank(value)));
-            }
-        }
+	public void addToDiscard(List<Card> cards) {
+		Objects.requireNonNull(cards);
+		discardPile.addAll(cards);
+	}
 
-        Collections.shuffle(decks);
-    }
-
-    public List<Card> draw(int size) {
-        if(size>8){throw new IllegalArgumentException("size can't be greater than 8");}
-        int toDraw = Math.min(size, decks.size());
-        return IntStream.range(0, toDraw)
-                .mapToObj(_ -> decks.removeLast())
-                .toList();
-    }
+	public void refillDeck(int cardsToDraw) {
+		if (cardsToDraw < 0 || cardsToDraw > 8) {
+			throw new IllegalArgumentException("cards to draw must be between 0 and 8");
+		}
+		if (deck.size() >= cardsToDraw) {
+			return;
+		}
+		deck.addAll(discardPile);
+		discardPile.clear();
+		Collections.shuffle(deck);
+	}
 
 }

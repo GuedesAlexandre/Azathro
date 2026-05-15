@@ -12,14 +12,18 @@ public record HandEvaluator() {
     public static Combination evaluate(Hand hand) {
         Objects.requireNonNull(hand);
         var cards = hand.cards();
-        if (cards.size() != 5) {
-            throw new IllegalArgumentException("cards size must be 5");
+        if (cards.size() < 1 || cards.size() > 5) {
+            throw new IllegalArgumentException("cards size must be between 1 and 5");
         }
         var values = cards.stream().map(c -> c.rank().value()).sorted().toList();
         var suits = cards.stream().map(Card::suit).toList();
-        var isFlush = suits.stream().distinct().count() == 1;
-        var isStraight = isStraight(values);
         var counts = countByValue(values);
+        var isFlush = false;
+        var isStraight = false;
+        if (cards.size() == 5) {
+        	isFlush = suits.stream().distinct().count() == 1;
+            isStraight = isStraight(values);
+        }
         var hasFour = counts.containsValue(4);
         var hasThree = counts.containsValue(3);
         var pairs = counts.values().stream().filter(v -> v == 2).count();
