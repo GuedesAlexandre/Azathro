@@ -1,4 +1,5 @@
 package fr.uge.azathro.view;
 
-public class View {
+public sealed interface View permits ConsoleView, GraphicView {
 }
+

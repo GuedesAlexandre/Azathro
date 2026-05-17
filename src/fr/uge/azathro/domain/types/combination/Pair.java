@@ -1,4 +1,4 @@
 package fr.uge.azathro.domain.types.combination;
 
-public record Pair() implements Combination {
+public record Pair(int chips, int multiplier) implements Combination {
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class GameState {
 	private static final int NB_BLINDS = 5;
 	
-	private final Blind currentBlind;
+	private Blind currentBlind;
 	private final Deck deck;
 	private PlayerState playerState;
 	private ArrayList<Card> currentHand;
@@ -50,8 +50,15 @@ public class GameState {
     }
 
     public void updatePlayerState(PlayerState playerState) {
+		Objects.requireNonNull(playerState);
         this.playerState = playerState;
     }
+
+	public void updateCurrentBlind(Blind blind){
+		Objects.requireNonNull(blind);
+		this.currentBlind = blind;
+	}
+
 	
 	public void increaseBlindCount() {
 		blindCount++;
@@ -67,9 +74,9 @@ public class GameState {
 				════════════════════════════════════
 					Blind n°%d
 				    	Blind: %s
-				    	Objectif: %d
+				    	Objectif: %.2f
 				════════════════════════════════════
-				        """.formatted(blindCount, currentBlind.name(), currentBlind.score());
+				       \s""".formatted(blindCount, currentBlind.name(), currentBlind.score());
 
 	}
 }

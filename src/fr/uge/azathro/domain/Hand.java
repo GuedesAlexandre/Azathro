@@ -1,11 +1,13 @@
 package fr.uge.azathro.domain;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Hand {
     private final List<Card> cards;
 
     public Hand(List<Card> cards) {
+        Objects.requireNonNull(cards);
         this.cards = cards;
     }
     @Override
