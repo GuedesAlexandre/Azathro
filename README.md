@@ -49,7 +49,7 @@ La view est chargée de l'affichage du jeu.
 
 - Sur Eclipse, lancer directement le programme sur Main.java (se trouvant dans src/fr.uge.azathro)
 Si vous utilisez la ligne de commande, compilez tous les fichiers .java et lancez Main.java.
-Si vous souhaitez lancer la vu graphic rajouter l'argument "--graphic" à l'exécution de Main.java
+Si vous souhaitez lancer la vue graphique, rajoutez l'argument "--graphic" à l'exécution de Main.java
 
 ## Fonctionalités implémentées
 - représentation des cartes avec les combinaisons de poker
