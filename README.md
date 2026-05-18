@@ -62,6 +62,7 @@ Si vous souhaitez lancer la vu graphic rajouter l'argument "--graphic" à l'exé
 
 
 ## Amélioration probables
+Il manque un message de victoire sur la partie graphique, et la vue graphique est encore très basique.
 Interface graphique : utiliser des sprites pour les cartes, améliorer la disposition des éléments, ajouter des animations pour les actions du jeu.
 Extras à minima que nous allons réaliser : Score par cartes et Défausse active.
 Celle qu'on pourrait faire si on voit qu'on a plus de temps : Shop et gestion de Jokers.

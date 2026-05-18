@@ -2,6 +2,7 @@ package fr.uge.azathro.domain;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class Hand {
     private final List<Card> cards;
@@ -20,5 +21,13 @@ public class Hand {
 
     public List<Card> cards() {
         return cards;
+    }
+
+    public static Hand fromIndexes(Set<Integer> indexes, List<Card> availableCards) {
+        var cards = indexes.stream()
+                .sorted()
+                .map(availableCards::get)
+                .toList();
+        return new Hand(cards);
     }
 }

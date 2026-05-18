@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Random;
 
 public record Blind(String name, double score) {
-    private static final List<String> blindNames = List.of(
+    private static final List<String> BLIND_NAMES = List.of(
             "Le Défi de l'Abîme",
             "Le Jugement d'Azathro",
             "La Malédiction du Sphinx",
@@ -29,9 +29,8 @@ public record Blind(String name, double score) {
     }
 
     public Blind(double score) {
-        this(blindNames.get(new Random().nextInt(blindNames.size())), score);
+        this(BLIND_NAMES.get(new Random().nextInt(BLIND_NAMES.size())), score);
     }
-
 
     public boolean isBlinded(PlayerState state) {
         Objects.requireNonNull(state);

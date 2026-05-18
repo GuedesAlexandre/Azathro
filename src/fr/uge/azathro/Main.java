@@ -8,19 +8,18 @@ import fr.uge.azathro.controller.*;
 
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class Main {
     static void main(String[] args){
         var deck = new Deck();
-        var blind = new Blind(100L);
-        var playerState = new PlayerState("", 0, PlayerState.HANDCOUNT, new HashMap<>());
+        var blind = new Blind(10L);
+        var playerState = new PlayerState("Le fameux joueur pro");
         var gameState = new GameState(blind, deck, playerState);
 
         boolean graphic = Arrays.asList(args).contains("--graphic");
 
         if (graphic) {
-            var controller = new GraphicGameController(gameState);
+            var controller = new Graphicontroller(gameState);
             controller.start();
         } else {
             var controller = new GameController(gameState);

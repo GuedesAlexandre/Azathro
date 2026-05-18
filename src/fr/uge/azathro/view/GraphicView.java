@@ -93,7 +93,6 @@ public record GraphicView(int cardWidth, int cardHeight, int gap, int bottomMarg
         // Sécurise l'index entre 0 et handSize - 1
         return Math.clamp(cardIndex, 0, handSize - 1);
     }
-
     public boolean isInsideCardArea(float x, float y, int screenWidth, int screenHeight, int handSize) {
         if (handSize <= 0) return false;
         var totalWidth = totalWidthFor(handSize);

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class GameState {
-	private static final int NB_BLINDS = 5;
-	
+	private static final int NB_BLINDS = 2;
+
 	private Blind currentBlind;
 	private final Deck deck;
 	private PlayerState playerState;
@@ -68,15 +68,35 @@ public class GameState {
 		return blindCount > NB_BLINDS;
 	}
 
+
 	@Override
 	public String toString() {
 		return """
 				════════════════════════════════════
-					Blind n°%d
+						Blind n°%d
 				    	Blind: %s
 				    	Objectif: %.2f
 				════════════════════════════════════
 				       \s""".formatted(blindCount, currentBlind.name(), currentBlind.score());
 
 	}
+
+	public void removeCardsFromHand(List<Card> cardsToRemove) {
+        this.currentHand = currentHand.stream()
+                .filter(c -> !cardsToRemove.contains(c))
+				.collect(ArrayList::new	, ArrayList::add, ArrayList::addAll);
+	}
+
+	public void fillHandToSize(int targetSize) {
+		var currentHand = new ArrayList<>(this.currentHand);
+		var cardsToDraw = targetSize - currentHand.size();
+		currentHand.addAll(deck.draw(cardsToDraw));
+		this.currentHand = currentHand;
+	}
+
+	public void discardCards(List<Card> cards) {
+		deck.addToDiscard(cards);
+	}
+
 }
+
