@@ -1,4 +1,4 @@
 package fr.uge.azathro.domain.types.combination;
 
-public record ThreeOfAKind() implements Combination {
+public record ThreeOfAKind(int chips, int multiplier) implements Combination {
 }

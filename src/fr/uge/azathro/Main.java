@@ -1,31 +1,32 @@
 package fr.uge.azathro;
+
 import fr.uge.azathro.domain.Blind;
 import fr.uge.azathro.domain.Deck;
-import fr.uge.azathro.domain.Hand;
 import fr.uge.azathro.model.GameState;
 import fr.uge.azathro.model.PlayerState;
 import fr.uge.azathro.controller.*;
 
+
+import java.util.Arrays;
+
 public class Main {
-    static void main() {
-        IO.println("""
-                
-                ════════════════════════════════════════
-                     ✦ ･ﾟ･ ｡ ･ﾟ･ ✦ ･ﾟ･ ｡ ･ﾟ･ ✦
-                
-                        ～ A Z A T H R O ～
-                
-                        Les cartes des abysses
-                
-                     ✦ ･ﾟ･ ｡ ･ﾟ･ ✦ ･ﾟ･ ｡ ･ﾟ･ ✦
-                ════════════════════════════════════════
-                
-                """);
+    static void main(String[] args){
         var deck = new Deck();
-        var blind = new Blind("Small Blind", 100L);
-        var playerState = new PlayerState("Alice");
+        var blind = new Blind(10L);
+        var playerState = new PlayerState("Le fameux joueur pro");
         var gameState = new GameState(blind, deck, playerState);
-        var controller = new GameController(gameState);
-        controller.startGame();
+
+        boolean graphic = Arrays.asList(args).contains("--graphic");
+
+        if (graphic) {
+            var controller = new Graphicontroller(gameState);
+            controller.start();
+        } else {
+            var controller = new GameController(gameState);
+            controller.startGame();
+        }
     }
+
+
+
 }

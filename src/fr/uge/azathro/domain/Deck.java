@@ -30,10 +30,7 @@ public class Deck {
 			deck.add(new Card(suit, new King()));
 			deck.add(new Card(suit, new Queen()));
 			deck.add(new Card(suit, new Jack()));
-
-			for (int value = 2; value <= 10; value++) {
-				deck.add(new Card(suit, new NumericRank(value)));
-			}
+			IntStream.range(2, 11).forEach(value -> deck.add(new Card(suit, new NumericRank(value))));
 		}
 
 		Collections.shuffle(deck);

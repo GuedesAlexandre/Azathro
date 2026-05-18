@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class GameState {
-	private static final int NB_BLINDS = 5;
-	
-	private final Blind currentBlind;
+	private static final int NB_BLINDS = 2;
+
+	private Blind currentBlind;
 	private final Deck deck;
 	private PlayerState playerState;
 	private ArrayList<Card> currentHand;
@@ -50,8 +50,15 @@ public class GameState {
     }
 
     public void updatePlayerState(PlayerState playerState) {
+		Objects.requireNonNull(playerState);
         this.playerState = playerState;
     }
+
+	public void updateCurrentBlind(Blind blind){
+		Objects.requireNonNull(blind);
+		this.currentBlind = blind;
+	}
+
 	
 	public void increaseBlindCount() {
 		blindCount++;
@@ -61,15 +68,35 @@ public class GameState {
 		return blindCount > NB_BLINDS;
 	}
 
+
 	@Override
 	public String toString() {
 		return """
 				════════════════════════════════════
-					Blind n°%d
+						Blind n°%d
 				    	Blind: %s
-				    	Objectif: %d
+				    	Objectif: %.2f
 				════════════════════════════════════
-				        """.formatted(blindCount, currentBlind.name(), currentBlind.score());
+				       \s""".formatted(blindCount, currentBlind.name(), currentBlind.score());
 
 	}
+
+	public void removeCardsFromHand(List<Card> cardsToRemove) {
+        this.currentHand = currentHand.stream()
+                .filter(c -> !cardsToRemove.contains(c))
+				.collect(ArrayList::new	, ArrayList::add, ArrayList::addAll);
+	}
+
+	public void fillHandToSize(int targetSize) {
+		var currentHand = new ArrayList<>(this.currentHand);
+		var cardsToDraw = targetSize - currentHand.size();
+		currentHand.addAll(deck.draw(cardsToDraw));
+		this.currentHand = currentHand;
+	}
+
+	public void discardCards(List<Card> cards) {
+		deck.addToDiscard(cards);
+	}
+
 }
+

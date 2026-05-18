@@ -1,140 +1,92 @@
 package fr.uge.azathro.controller;
 
+import fr.uge.azathro.controller.engine.GameEngine;
 import fr.uge.azathro.model.GameState;
-import fr.uge.azathro.model.PlayerState;
 import fr.uge.azathro.domain.Card;
-import fr.uge.azathro.domain.types.combination.*;
 import fr.uge.azathro.domain.Hand;
-import fr.uge.azathro.domain.HandEvaluator;
+import fr.uge.azathro.view.ConsoleView;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class GameController {
-	private static final int HANDSIZE = 8;
-	private final GameState gameState;
-	private final Scanner scanner = new Scanner(System.in);
+    private final GameEngine engine;
+    private final Scanner scanner = new Scanner(System.in);
+    private final ConsoleView view = new ConsoleView();
 
-	public GameController(GameState gameState) {
-		this.gameState = gameState;
-	}
+    public GameController(GameState gameState) {
+        this.engine = new GameEngine(gameState);
+    }
 
-	public void startGame() {
-		while (!gameState.isFinished()) {
-			if (!playBlind()) {
-				return;
-			}
+    public void startGame() {
+        view.showIntro();
+        while (!engine.gameState().isFinished()) {
+            if (!playBlind()) {
+                return;
+            }
+            var drawPlanet = engine.advanceToNextBlind();
+            view.showPlanetDrawn(drawPlanet);
+        }
+        view.showGameEnd();
+    }
 
-			gameState.increaseBlindCount();
-			var oldPlayer = gameState.playerState();
-			var newPlayer = new PlayerState(oldPlayer.name(), 0, PlayerState.HANDCOUNT);
-			gameState.updatePlayerState(newPlayer);
-			gameState.deck().createStandardDeck();
-			gameState.setCurrentHand(List.of());
-		}
-		IO.println("""
-								\s
-				╔══════════════════════════════╗
-				     ⚝  Partie terminée !  ⚝
-				╚══════════════════════════════╝
-								  \s""");
-	}
+    private boolean playBlind() {
+        view.showGameState(engine.gameState());
+        view.showPlayerState(engine.gameState().playerState());
 
-	private boolean playBlind() {
-		IO.println(gameState);
-		IO.println(gameState.playerState());
-		while (!gameState.currentBlind().isBlinded(gameState.playerState())
-				&& gameState.playerState().handCount() > 0) {
-			playHand();
-		}
+        while (!engine.isBlindCompleted() && engine.gameState().playerState().handCount() > 0) {
+            playHand();
+        }
 
-		if (gameState.currentBlind().isBlinded(gameState.playerState())) {
-			IO.println("""
-									\s
-					╔══════════════════════════════╗
-					      ⚝  Blind réussi !  ⚝
-					╚══════════════════════════════╝
-									  \s""");
-			return true;
-		} else {
-			IO.println("""
-								\s
-					╔══════════════════════════════╗
-						  ✖  Game Over  ✖
-					╚══════════════════════════════╝
-								 \s""");
-			return false;
-		}
-	}
+        if (engine.isBlindCompleted()) {
+            view.showBlindSuccess();
+            return true;
+        } else {
+            view.showGameOver();
+            return false;
+        }
+    }
 
-	private void playHand() {
-		var currentHand = new ArrayList<>(gameState.currentHand());
-		var cardsToDraw = HANDSIZE - currentHand.size();
+    private void playHand() {
+        engine.ensureHandFilled();
+        view.showDrawnCards(engine.gameState().currentHand());
 
-		currentHand.addAll(gameState.deck().draw(cardsToDraw));
-		gameState.setCurrentHand(currentHand);
+        var selectedCards = selectCards(engine.gameState().currentHand());
+        var hand = new Hand(selectedCards);
+        view.showHand(hand);
 
-		IO.println("Cartes piochées :");
-		for (var i = 0; i < currentHand.size(); i++) {
-			IO.println(i + " - " + currentHand.get(i));
-		}
+        var combination = engine.evaluateHand(selectedCards);
+        var score = engine.playHand(selectedCards);
 
-		var selectedCards = selectCards(currentHand);
+        view.showCombination(combination);
+        view.showScore(score);
+        view.showPlayerState(engine.gameState().playerState());
+    }
 
-		var hand = new Hand(selectedCards);
-		IO.println(hand);
+    private List<Card> selectCards(List<Card> drawnCards) {
+        var selected = new ArrayList<Card>();
+        view.showSelectCardsPrompt();
+        while (true) {
+            if (selected.size() == 5) {
+                break;
+            }
+            var index = scanner.nextInt();
+            if (index == -1 && !selected.isEmpty()) {
+                break;
+            }
+            if (index < 0 || index >= drawnCards.size()) {
+                view.showInvalidIndex();
+                continue;
+            }
+            var chosen = drawnCards.get(index);
 
-		var combination = HandEvaluator.evaluate(hand);
-		var score = Combination.computeScore(combination);
-
-		IO.println("Combinaison: " + combination.getClass().getSimpleName());
-		IO.println("Score obtenu: " + score);
-
-		var remainingCards = new ArrayList<>(currentHand);
-		remainingCards.removeAll(selectedCards);
-		gameState.deck().addToDiscard(selectedCards);
-		gameState.setCurrentHand(remainingCards);
-
-		var oldPlayer = gameState.playerState();
-		var updatedPlayer = new PlayerState(oldPlayer.name(), oldPlayer.totalScore() + score,
-				oldPlayer.handCount() - 1);
-
-		gameState.updatePlayerState(updatedPlayer);
-
-		IO.println(gameState.playerState());
-	}
-
-	private List<Card> selectCards(List<Card> drawnCards) {
-		var selected = new ArrayList<Card>();
-
-		IO.println("""
-				Choisissez entre 1 et 5 cartes.
-				Tapez -1 pour terminer.
-				""");
-
-		while (selected.size() < 5) {
-			var index = scanner.nextInt();
-
-			if (index == -1 && !selected.isEmpty()) {
-				break;
-			}
-
-			if (index < 0 || index >= drawnCards.size()) {
-				IO.println("Indice invalide.");
-				continue;
-			}
-
-			var chosen = drawnCards.get(index);
-
-			if (selected.contains(chosen)) {
-				IO.println("Carte déjà choisie.");
-				continue;
-			}
-
-			selected.add(chosen);
-		}
-		return selected;
-	}
-
+            if (selected.contains(chosen)) {
+                view.showCardAlreadyChosen();
+                continue;
+            }
+            selected.add(chosen);
+        }
+        return selected;
+    }
 }
