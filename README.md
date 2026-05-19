@@ -22,7 +22,7 @@ src/fr/uge/azathro/
 │   ├── Blind.java       
 │   ├── Deck.java      
 │   ├── Hand.java        
-│   └── HandEvaluator.java
+│   └── Dealer.java
 ├── model/
 │   ├── GameState.java 
 │   └── PlayerState.java
