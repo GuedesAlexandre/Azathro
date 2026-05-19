@@ -16,7 +16,7 @@ src/fr/uge/azathro/
 │   ├── types/               
 |   │   ├── combination/
 |   │   ├── rank/
-|   │   └── suit/
+|   │   ├── suit/
 |   │   └── planet/         
 │   ├── Card.java      
 │   ├── Blind.java       
@@ -27,11 +27,16 @@ src/fr/uge/azathro/
 │   ├── GameState.java 
 │   └── PlayerState.java
 ├── controller/
-│   └── GameController.java
+│   ├── engine/
+    │   └── GameEngine.java
+    ├── GameController.java
 │   └── GraphicGameController.java
 └── view/   
-       └──  View.java
-       └──  ViewState.java
+    ├── assets/
+    ├── ConsoleView.java
+    ├── GraphicView.java 
+    ├── GraphicViewState.java 
+    └── View.java
               
 ```
 On a fait le choix dans le domain d'inclure tous les objets représentants des notions "métiers" du jeu balatro, comme les cartes, les blinds, les mains, les planètes etc... 
