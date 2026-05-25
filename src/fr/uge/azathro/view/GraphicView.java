@@ -90,9 +90,9 @@ public final class GraphicView implements View {
     private void drawIntroText(Graphics2D graphics2D, int width, int height) {
         graphics2D.setColor(Color.WHITE);
         graphics2D.setFont(BUTTON_FONT);
-        String text = "Appuyez sur ESPACE pour commencer";
-        FontMetrics fm = graphics2D.getFontMetrics();
-        graphics2D.drawString(text, (width - fm.stringWidth(text)) / 2, height - 100);
+        var text = "Appuyez sur ESPACE pour commencer";
+        var fontMetrics = graphics2D.getFontMetrics();
+        graphics2D.drawString(text, (width - fontMetrics.stringWidth(text)) / 2, height - 100);
     }
 
     private void waitForIntroAction() {
@@ -127,8 +127,8 @@ public final class GraphicView implements View {
     }
 
     private void render(Graphics2D graphics2D, GameState gameState, Set<Integer> selectedIndexes, String lastCombination, Integer lastScore, int width, int height) {
-        int cardWidth = (width * 10) / 100;
-        int cardHeight = (height * 25) / 100;
+        var cardWidth = (width * 10) / 100;
+        var cardHeight = (height * 25) / 100;
         drawFullBackground(graphics2D, width, height, Color.DARK_GRAY);
         drawUIHeader(graphics2D, gameState);
         drawPlanetsInfo(graphics2D, gameState);
@@ -138,12 +138,12 @@ public final class GraphicView implements View {
         drawHand(graphics2D, gameState, selectedIndexes, width, height, cardWidth, cardHeight);
     }
 
-    private void drawUIHeader(Graphics2D g, GameState gameState) {
-        g.setColor(Color.WHITE);
-        g.setFont(HEADER_FONT);
-        g.drawString("Blind: " + gameState.currentBlind().name() + " | Objectif: " + gameState.currentBlind().score(), 30, 50);
-        g.drawString("Score: " + gameState.playerState().totalScore(), 30, 85);
-        g.drawString("Deck: " + gameState.deck().size() + " | Mains restantes: " + gameState.playerState().handCount(), 30, 120);
+    private void drawUIHeader(Graphics2D graphics2D, GameState gameState) {
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.setFont(HEADER_FONT);
+        graphics2D.drawString("Blind: " + gameState.currentBlind().name() + " | Objectif: " + gameState.currentBlind().score(), 30, 50);
+        graphics2D.drawString("Score: " + gameState.playerState().totalScore(), 30, 85);
+        graphics2D.drawString("Deck: " + gameState.deck().size() + " | Mains restantes: " + gameState.playerState().handCount(), 30, 120);
     }
 
     private void drawPlanetsInfo(Graphics2D graphics2D, GameState gameState) {
@@ -153,10 +153,10 @@ public final class GraphicView implements View {
         graphics2D.drawString("Planètes : " + planetsText, 30, 155);
     }
 
-    private void drawLastCombinationMessage(Graphics2D g, String combination, Integer score, int height, int ch) {
-        g.setFont(COMBO_FONT);
+    private void drawLastCombinationMessage(Graphics2D graphics2D, String combination, Integer score, int height, int ch) {
+        graphics2D.setFont(COMBO_FONT);
         var text = "Vous venez de jouer : " + combination + " (+ " + score + ")";
-        g.drawString(text, 30, height - bottomMargin - ch - 40);
+        graphics2D.drawString(text, 30, height - bottomMargin - ch - 40);
     }
 
     private void drawHand(Graphics2D graphics2D, GameState gameState, Set<Integer> selectedIndexes, int width, int height, int cardWidth, int cardHeight) {
@@ -165,8 +165,8 @@ public final class GraphicView implements View {
         var yo = yOriginFor(height, cardHeight);
         graphics2D.setFont(CARD_FONT);
         IntStream.range(0, hand.size()).forEach(i -> {
-            int x = xo + i * (cardWidth + gap);
-            int y = selectedIndexes.contains(i) ? yo - 30 : yo;
+            var x = xo + i * (cardWidth + gap);
+            var y = selectedIndexes.contains(i) ? yo - 30 : yo;
             graphics2D.setColor(Color.WHITE);
             graphics2D.fill(new Rectangle2D.Float(x, y, cardWidth, cardHeight));
             graphics2D.setColor(Color.BLACK);
@@ -203,7 +203,7 @@ public final class GraphicView implements View {
         var screen = context.getScreenInfo();
         context.renderFrame(graphics2D -> {
             drawOverlay(graphics2D, screen.width(), screen.height(), new Color(255, 215, 0, 180));
-            drawCenteredText(graphics2D, "VICTOIRE !", screen.width(),  screen.height(), Color.WHITE);
+            drawCenteredText(graphics2D, "VICTOIRE !", screen.width(), screen.height(), Color.WHITE);
         });
         sleep(3000);
     }
@@ -213,8 +213,8 @@ public final class GraphicView implements View {
         if (context == null) return;
         var screen = context.getScreenInfo();
         context.renderFrame(graphics2D -> {
-            drawOverlay(graphics2D,  screen.width(), screen.height(), new Color(0, 0, 255, 150));
-            drawCenteredText(graphics2D, "Planète tirée : " + planet.name(),  screen.width(), screen.height(), Color.WHITE);
+            drawOverlay(graphics2D, screen.width(), screen.height(), new Color(0, 0, 255, 150));
+            drawCenteredText(graphics2D, "Planète tirée : " + planet.name(), screen.width(), screen.height(), Color.WHITE);
         });
         sleep(1500);
     }
@@ -227,7 +227,7 @@ public final class GraphicView implements View {
     private void drawCenteredText(Graphics2D graphics2D, String text, int width, int height, Color color) {
         graphics2D.setColor(color);
         graphics2D.setFont(GraphicView.TITLE_FONT);
-       var fm = graphics2D.getFontMetrics();
+        var fm = graphics2D.getFontMetrics();
         graphics2D.drawString(text, (width - fm.stringWidth(text)) / 2, height / 2);
     }
 
@@ -249,10 +249,10 @@ public final class GraphicView implements View {
 
     public boolean isInsideCardArea(float x, float y, int width, int height, int handSize) {
         if (handSize <= 0) return false;
-        int cardWidth = (width * 12) / 100;
-        int carHeight = (height * 30) / 100;
-        int xo = xOriginFor(width, handSize, cardWidth);
-        int yo = yOriginFor(height, carHeight);
+        var cardWidth = (width * 12) / 100;
+        var carHeight = (height * 30) / 100;
+        var xo = xOriginFor(width, handSize, cardWidth);
+        var yo = yOriginFor(height, carHeight);
         return x >= xo && x <= xo + totalWidthFor(handSize, cardWidth) && y >= yo && y <= yo + carHeight;
     }
 
