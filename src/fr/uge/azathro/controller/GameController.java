@@ -1,92 +1,143 @@
 package fr.uge.azathro.controller;
 
+import com.github.forax.zen.Application;
+import com.github.forax.zen.ApplicationContext;
+import com.github.forax.zen.KeyboardEvent;
+import com.github.forax.zen.PointerEvent;
 import fr.uge.azathro.controller.engine.GameEngine;
-import fr.uge.azathro.model.GameState;
-import fr.uge.azathro.domain.Card;
 import fr.uge.azathro.domain.Hand;
+import fr.uge.azathro.model.GameState;
 import fr.uge.azathro.view.ConsoleView;
+import fr.uge.azathro.view.GraphicView;
+import fr.uge.azathro.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.awt.*;
+import java.util.*;
 
-public class GameController {
+public final class GameController {
     private final GameEngine engine;
+    private final View view;
+    private final Set<Integer> selectedIndexes = new HashSet<>();
+    private String lastCombination;
+    private Integer lastScore;
     private final Scanner scanner = new Scanner(System.in);
-    private final ConsoleView view = new ConsoleView();
 
-    public GameController(GameState gameState) {
+    public GameController(GameState gameState, View view) {
         this.engine = new GameEngine(gameState);
+        this.view = view;
     }
 
-    public void startGame() {
+    public void start() {
+        switch(view){
+            case GraphicView gv -> Application.run(Color.DARK_GRAY, context -> graphicLoop(context, gv));
+            case ConsoleView cv -> consoleLoop(cv);
+        }
+    }
+
+    private void graphicLoop(ApplicationContext context, GraphicView graphicView) {
+        graphicView.setContext(context);
         view.showIntro();
         while (!engine.gameState().isFinished()) {
-            if (!playBlind()) {
+            if (engine.isGameOver()) {
+                view.showGameOver();
+                context.dispose();
                 return;
             }
-            var drawPlanet = engine.advanceToNextBlind();
-            view.showPlanetDrawn(drawPlanet);
+            engine.ensureHandFilled();
+            view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
+
+            var event = context.pollOrWaitEvent(10);
+            if (event == null) continue;
+
+            switch (event) {
+                case KeyboardEvent ke -> {
+                    if (ke.key() == KeyboardEvent.Key.ESCAPE) {
+                        context.dispose();
+                        return;
+                    }
+                    if (ke.key() == KeyboardEvent.Key.SPACE) {
+                        playHand();
+                    }
+                }
+                case PointerEvent pe -> {
+                    if (pe.action() != PointerEvent.Action.POINTER_DOWN) continue;
+                    var screen = context.getScreenInfo();
+                    var handSize = engine.gameState().currentHand().size();
+                    if (graphicView.isInsideCardArea(pe.location().x(), pe.location().y(), screen.width(), screen.height(), handSize)) {
+                        toggleSelect(graphicView.cardIndexFromX(pe.location().x(), screen.width(), handSize));
+                    }
+                }
+                default -> {}
+            }
+
+            checkBlindAndAdvance();
+        }
+        view.showGameEnd();
+        context.dispose();
+    }
+
+    private void consoleLoop(ConsoleView consoleView) {
+        view.showIntro();
+        while (!engine.gameState().isFinished()) {
+            engine.ensureHandFilled();
+            view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
+
+            selectCardsConsole(consoleView);
+            playHand();
+
+            if (engine.isGameOver()) {
+                view.showGameOver();
+                return;
+            }
+
+            checkBlindAndAdvance();
         }
         view.showGameEnd();
     }
 
-    private boolean playBlind() {
-        view.showGameState(engine.gameState());
-        view.showPlayerState(engine.gameState().playerState());
-
-        while (!engine.isBlindCompleted() && engine.gameState().playerState().handCount() > 0) {
-            playHand();
-        }
-
-        if (engine.isBlindCompleted()) {
-            view.showBlindSuccess();
-            return true;
-        } else {
-            view.showGameOver();
-            return false;
+    private void toggleSelect(int index) {
+        if (index < 0 || index >= engine.gameState().currentHand().size()) return;
+        if (selectedIndexes.contains(index)) {
+            selectedIndexes.remove(index);
+        } else if (selectedIndexes.size() < 5) {
+            selectedIndexes.add(index);
         }
     }
 
     private void playHand() {
-        engine.ensureHandFilled();
-        view.showDrawnCards(engine.gameState().currentHand());
-
-        var selectedCards = selectCards(engine.gameState().currentHand());
-        var hand = new Hand(selectedCards);
-        view.showHand(hand);
-
-        var combination = engine.evaluateHand(selectedCards);
-        var score = engine.playHand(selectedCards);
-
-        view.showCombination(combination);
-        view.showScore(score);
-        view.showPlayerState(engine.gameState().playerState());
+        if (selectedIndexes.isEmpty()) return;
+        var cards = Hand.fromIndexes(selectedIndexes, engine.gameState().currentHand()).cards();
+        var combination = engine.evaluateHand(cards);
+        lastScore = engine.playHand(cards);
+        lastCombination = combination.getClass().getSimpleName();
+        selectedIndexes.clear();
     }
 
-    private List<Card> selectCards(List<Card> drawnCards) {
-        var selected = new ArrayList<Card>();
-        view.showSelectCardsPrompt();
-        while (true) {
-            if (selected.size() == 5) {
-                break;
-            }
-            var index = scanner.nextInt();
-            if (index == -1 && !selected.isEmpty()) {
-                break;
-            }
-            if (index < 0 || index >= drawnCards.size()) {
-                view.showInvalidIndex();
-                continue;
-            }
-            var chosen = drawnCards.get(index);
-
-            if (selected.contains(chosen)) {
-                view.showCardAlreadyChosen();
-                continue;
-            }
-            selected.add(chosen);
+    private void checkBlindAndAdvance() {
+        if (engine.isBlindCompleted()) {
+            view.showBlindSuccess();
+            var planet = engine.advanceToNextBlind();
+            view.showPlanetDrawn(planet);
+            lastCombination = null;
+            lastScore = null;
         }
-        return selected;
+    }
+
+    private void selectCardsConsole(ConsoleView consoleView) {
+        selectedIndexes.clear();
+        consoleView.showSelectCardsPrompt();
+        while (selectedIndexes.size() < 5) {
+            int index = scanner.nextInt();
+            if (index == -1 && !selectedIndexes.isEmpty()) break;
+            if (index < 0 || index >= engine.gameState().currentHand().size()) {
+                consoleView.showInvalidIndex();
+                continue;
+            }
+            if (selectedIndexes.contains(index)) {
+                consoleView.showCardAlreadyChosen();
+                continue;
+            }
+            selectedIndexes.add(index);
+        }
     }
 }

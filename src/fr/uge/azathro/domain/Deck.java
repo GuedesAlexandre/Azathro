@@ -10,8 +10,8 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class Deck {
-	private static final ArrayList<Card> deck = new ArrayList<>();
-	private static final ArrayList<Card> discardPile = new ArrayList<>();
+	private final ArrayList<Card> deck = new ArrayList<>();
+	private final ArrayList<Card> discardPile = new ArrayList<>();
 
 	public Deck() {
 		createStandardDeck();
@@ -24,15 +24,11 @@ public class Deck {
 	public void createStandardDeck() {
 		deck.clear();
 		discardPile.clear();
-		List<Suit> suits = List.of(new Club(), new Diamond(), new Heart(), new Spade());
-		for (Suit suit : suits) {
-			deck.add(new Card(suit, new Ace()));
-			deck.add(new Card(suit, new King()));
-			deck.add(new Card(suit, new Queen()));
-			deck.add(new Card(suit, new Jack()));
-			IntStream.range(2, 11).forEach(value -> deck.add(new Card(suit, new NumericRank(value))));
+		for (Suit suit : Suit.values()) {
+			for (Rank rank : Rank.values()) {
+				deck.add(new Card(suit, rank));
+			}
 		}
-
 		Collections.shuffle(deck);
 	}
 
@@ -40,9 +36,7 @@ public class Deck {
 		if (size < 0 || size > 8) {
 			throw new IllegalArgumentException("size must be between 0 and 8");
 		}
-		
 		refillDeck(size);
-		
 		int toDraw = Math.min(size, deck.size());
 		return IntStream.range(0, toDraw).mapToObj(_ -> deck.removeLast()).toList();
 	}

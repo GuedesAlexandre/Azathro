@@ -4,8 +4,10 @@ import fr.uge.azathro.domain.Blind;
 import fr.uge.azathro.domain.Deck;
 import fr.uge.azathro.model.GameState;
 import fr.uge.azathro.model.PlayerState;
-import fr.uge.azathro.controller.*;
-
+import fr.uge.azathro.controller.GameController;
+import fr.uge.azathro.view.ConsoleView;
+import fr.uge.azathro.view.GraphicView;
+import fr.uge.azathro.view.View;
 
 import java.util.Arrays;
 
@@ -17,16 +19,15 @@ public class Main {
         var gameState = new GameState(blind, deck, playerState);
 
         boolean graphic = Arrays.asList(args).contains("--graphic");
+        View view;
 
         if (graphic) {
-            var controller = new Graphicontroller(gameState);
-            controller.start();
+            view = new GraphicView(14, 50);
         } else {
-            var controller = new GameController(gameState);
-            controller.startGame();
+            view = new ConsoleView();
         }
+
+        var controller = new GameController(gameState, view);
+        controller.start();
     }
-
-
-
 }
