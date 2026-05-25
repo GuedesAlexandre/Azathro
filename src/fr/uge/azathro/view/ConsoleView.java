@@ -1,17 +1,15 @@
 package fr.uge.azathro.view;
 
 import fr.uge.azathro.domain.Card;
-import fr.uge.azathro.domain.Hand;
-import fr.uge.azathro.domain.types.combination.Combination;
 import fr.uge.azathro.domain.types.planet.Planet;
 import fr.uge.azathro.model.GameState;
-import fr.uge.azathro.model.PlayerState;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public final class ConsoleView implements View {
+    @Override
     public void showIntro() {
         IO.println("""
                 
@@ -28,19 +26,32 @@ public final class ConsoleView implements View {
                 """);
     }
 
-    public void showGameState(GameState gameState) {
+    @Override
+    public void showGameState(GameState gameState, Set<Integer> selectedIndexes, String lastCombination, Integer lastScore) {
         IO.println(gameState);
+        IO.println(gameState.playerState());
+        if (lastCombination != null) {
+            IO.println("Derniere combinaison jouee : " + lastCombination + " (Score : " + lastScore + ")");
+        }
+        showHandWithSelection(gameState.currentHand(), selectedIndexes);
     }
 
-    public void showPlayerState(PlayerState playerState) {
-        IO.println(playerState);
+    private void showHandWithSelection(List<Card> cards, Set<Integer> selectedIndexes) {
+        IO.println("Main du joueur :");
+        IntStream.range(0, cards.size())
+                .forEach(i -> {
+                    String prefix = selectedIndexes.contains(i) ? "[X] " : "[ ] ";
+                    IO.println(prefix + i + ": " + cards.get(i));
+                });
     }
 
+    @Override
     public void showPlanetDrawn(Planet planet) {
         IO.println("Planete tire : " + planet + " (" + planet.combination() + " bonus : "
                 + planet.bonusChips() + " chips, x" + planet.bonusMult() + " multiplicateur)");
     }
 
+    @Override
     public void showGameEnd() {
         IO.println("""
                 			\s
@@ -50,6 +61,7 @@ public final class ConsoleView implements View {
                 			  \s""");
     }
 
+    @Override
     public void showBlindSuccess() {
         IO.println("""
                 				\s
@@ -59,6 +71,7 @@ public final class ConsoleView implements View {
                 				  \s""");
     }
 
+    @Override
     public void showGameOver() {
         IO.println("""
                 			\s
@@ -66,25 +79,6 @@ public final class ConsoleView implements View {
                 	  ✖  Game Over  ✖
                 ╚══════════════════════════════╝
                 			 \s""");
-    }
-
-    public void showDrawnCards(List<Card> cards) {
-        IO.println("Cartes piochées :");
-        IntStream.range(0, cards.size())
-                .forEach(i -> IO.println("[" + i + "] " + cards.get(i)));
-    }
-
-    public void showHand(Hand hand) {
-        IO.println(hand);
-    }
-
-    public void showCombination(Combination combination) {
-        Objects.requireNonNull(combination);
-        IO.println("Combinaison: " + combination.getClass().getSimpleName());
-    }
-
-    public void showScore(int score) {
-        IO.println("Score obtenu: " + score);
     }
 
     public void showSelectCardsPrompt() {
