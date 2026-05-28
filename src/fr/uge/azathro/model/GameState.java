@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class GameState {
-	private static final int NB_BLINDS = 2;
+	private static final int NB_BLINDS = 5;
 
 	private Blind currentBlind;
 	private final Deck deck;
@@ -73,7 +73,7 @@ public class GameState {
 	public String toString() {
 		return """
 				════════════════════════════════════
-						Blind n°%d
+					Blind n°%d
 				    	Blind: %s
 				    	Objectif: %.2f
 				════════════════════════════════════

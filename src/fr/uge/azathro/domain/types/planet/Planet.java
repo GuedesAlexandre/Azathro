@@ -3,15 +3,15 @@ package fr.uge.azathro.domain.types.planet;
 import java.util.Random;
 
 public enum Planet {
-    PLUTON("Carte Haute",10, 1),
-    MERCURE("Paire",15, 1),
-    URANUS("Double Paire",20, 1),
-    VENUS("Brelan",20, 2),
-    SATURNE("Suite",30, 3),
-    JUPITER("Couleur",15, 2),
-    TERRE("Full",25, 2),
-    MARS("Carré",30, 3),
-    NEPTUNE("Quinte Flush",40, 4);
+    PLUTON("High card",10, 1),
+    MERCURE("Pair",15, 1),
+    URANUS("Two Pair",20, 1),
+    VENUS("Three of a kind",20, 2),
+    SATURNE("Straight",30, 3),
+    JUPITER("Flush",15, 2),
+    TERRE("Full House",25, 2),
+    MARS("Four of a kind",30, 3),
+    NEPTUNE("Straight Flush",40, 4);
     private final String combination;
     private final int bonusChips;
     private final int bonusMult;
