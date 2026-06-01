@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public record PlayerState(String name, int totalScore, int handCount, Map<Planet, Integer> planetDrawed) {
+public record PlayerState(String name, double totalScore, int handCount, Map<Planet, Integer> planetDrawed) {
     public static final int HANDCOUNT = 4;
 
     public PlayerState {

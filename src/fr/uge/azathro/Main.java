@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class Main {
     static void main(String[] args){
         var deck = new Deck();
-        var blind = new Blind(50L);
+        var blind = new Blind(80L);
         var playerState = new PlayerState("Le fameux joueur pro");
         var gameState = new GameState(blind, deck, playerState);
 
