@@ -22,7 +22,7 @@ public class Main {
         View view;
 
         if (graphic) {
-            view = new GraphicView(14, 50);
+            view = new GraphicView();
         } else {
             view = new ConsoleView();
         }
