@@ -88,6 +88,7 @@ public final class GameController {
             view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
 
             selectCardsConsole(consoleView);
+            view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
             playHand();
 
             if (engine.isGameOver()) {

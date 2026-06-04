@@ -10,7 +10,9 @@ import java.util.stream.IntStream;
 
 public final class ConsoleView implements View {
 	private static final String RED = "\u001B[31m";
-	private static final String BLACK = "\u001B[30m";
+	private static final String YELLOW = "\u001B[33m";
+	private static final String GREEN = "\u001B[32m";
+	private static final String CYAN = "\u001B[36m";
 	private static final String RESET = "\u001B[0m";
 	
     @Override
@@ -32,12 +34,12 @@ public final class ConsoleView implements View {
 
     @Override
     public void showGameState(GameState gameState, Set<Integer> selectedIndexes, String lastCombination, Integer lastScore) {
-        IO.println(gameState);
-        IO.println(gameState.playerState());
-        showHandWithSelection(gameState.currentHand(), selectedIndexes);
         if (lastCombination != null) {
             IO.println("Derniere combinaison jouee : " + lastCombination + " (Score : " + lastScore + ")");
         }
+        IO.println(gameState);
+        IO.println(gameState.playerState());
+        showHandWithSelection(gameState.currentHand(), selectedIndexes);
         showPlanets(gameState);
     }
 
@@ -105,14 +107,10 @@ public final class ConsoleView implements View {
     
     private void showPlanets(GameState gameState) {
         var planets = gameState.playerState().planetDrawed();
-
+        IO.println("Planètes possédées : ");
         if (planets.isEmpty()) {
-            IO.println("\nAucune planète.");
-            return;
+            IO.println("Aucune planète.");
         }
-
-        IO.println("\nPlanètes possédées :");
-
         planets.forEach((planet, level) -> {
             IO.println(
                 "- " + planet.name()
@@ -124,12 +122,12 @@ public final class ConsoleView implements View {
     
     private String coloredCard(Card card) {
         var suit = card.suit();
-
         var color = switch (suit) {
-            case HEART, DIAMOND -> RED;
-            default -> BLACK;
+            case HEART -> RED;
+            case DIAMOND -> YELLOW;
+            case CLUB -> GREEN;
+            case SPADE -> CYAN;
         };
-
         return color + card + RESET;
     }
     
