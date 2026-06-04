@@ -37,7 +37,6 @@ public class AssetManager {
 		TITLE_FONT = derive(font, 50f);
 	}
 
-
 	public static BufferedImage cardImage(Card card) {
 		Objects.requireNonNull(card);
 		return cardImages.get(card);
@@ -46,66 +45,70 @@ public class AssetManager {
 	public static BufferedImage background() {
 		return BACKGROUND;
 	}
-	
+
 	public static BufferedImage logo() {
 		return LOGO;
 	}
-	
+
 	public static BufferedImage comboGuide() {
 		return COMBOGUIDE;
 	}
-	
+
 	public static Font headerFont() {
 		return HEADER_FONT;
 	}
-	
+
 	public static Font comboFont() {
 		return COMBO_FONT;
 	}
-	
+
 	public static Font buttonFont() {
 		return BUTTON_FONT;
 	}
-	
+
 	public static Font titleFont() {
 		return TITLE_FONT;
 	}
-	
 
 	private static BufferedImage loadImage(String path) {
 		try {
 			return ImageIO.read(new File(path));
 		} catch (IOException e) {
-			return null;
+			return createFallbackImage();
 		}
 	}
 
+	private static BufferedImage createFallbackImage() {
+		var image = new BufferedImage(100, 100, BufferedImage.TYPE_3BYTE_BGR);
+		var graphics = image.createGraphics();
+		graphics.setColor(Color.BLACK);
+		graphics.fillRect(0, 0, 100, 100);
+		return image;
+	}
 
-	private static BufferedImage loadCards() {
+	private static void loadCards() {
 		for (var suit : Suit.values()) {
 			for (var rank : Rank.values()) {
-				var path = ASSETS_PATH + "cards/"
-						+ rank.name().toLowerCase() + "_" + suit.name()
-						+ ".png";
+				var path = ASSETS_PATH + "cards/" + rank.name().toLowerCase()
+						+ "_" + suit.name() + ".png";
 				try {
 					var image = ImageIO.read(new File(path));
 					cardImages.put(new Card(suit, rank), image);
 				} catch (IOException e) {
-					return null;
+					throw new IllegalStateException(e.getMessage());
 				}
 			}
 		}
-		return null;
 	}
 
 	private static Font loadFont(String path) {
 		try {
 			return Font.createFont(Font.TRUETYPE_FONT, new File(path));
 		} catch (IOException | FontFormatException e) {
-			return null;
+			return new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 		}
 	}
-	
+
 	private static Font derive(Font font, float size) {
 		return font == null ? null : font.deriveFont(size);
 	}

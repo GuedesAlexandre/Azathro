@@ -24,16 +24,16 @@ public final class GraphicView implements View {
 	private ApplicationContext context;
 
 	private static final int MESSAGE_DURATION = 1500;
-	private static final float CARD_WIDTH_RATIO = 0.09f;
-	private static final float BOTTOM_MARGIN_RATIO = 0.05f;
-	private static final float GAP_RATIO = 0.012f;
-	private static final float HEADER_W_RATIO = 0.48f;
-	private static final float HEADER_H_RATIO = 0.55f;
-	private static final float HELP_BUTTON_RATIO = 0.045f;
-	private static final float PANEL_MARGIN_X = 0.02f;
-	private static final float PANEL_MARGIN_Y = 0.02f;
-	private static final float TEXT_MARGIN_X = 0.02f;
-	private static final float TEXT_MARGIN_Y = 0.04f;
+	private static final double CARD_WIDTH_RATIO = 0.09d;
+	private static final double BOTTOM_MARGIN_RATIO = 0.05d;
+	private static final double GAP_RATIO = 0.012d;
+	private static final double HEADER_W_RATIO = 0.48d;
+	private static final double HEADER_H_RATIO = 0.55d;
+	private static final double HELP_BUTTON_RATIO = 0.05d;
+	private static final double PANEL_MARGIN_X = 0.02d;
+	private static final double PANEL_MARGIN_Y = 0.02d;
+	private static final double TEXT_MARGIN_X = 0.02d;
+	private static final double TEXT_MARGIN_Y = 0.04d;
 
 	private final Rectangle helpButton = new Rectangle();
 	private boolean showGuide = false;
@@ -55,7 +55,7 @@ public final class GraphicView implements View {
 	}
 
 	private int cardHeight(int screenW) {
-		return (int) (cardWidth(screenW) * 1.5f);
+		return (int) (cardWidth(screenW) * 1.5d);
 	}
 
 	private int gap(int screenW) {
@@ -66,33 +66,29 @@ public final class GraphicView implements View {
 		return (int) (screenH * BOTTOM_MARGIN_RATIO);
 	}
 
-	private int totalHandWidth(int handSize, int cw, int gap) {
-		return handSize * cw + Math.max(0, handSize - 1) * gap;
+	private int totalHandWidth(int handSize, int cardWidth, int gap) {
+		return handSize * cardWidth + Math.max(0, handSize - 1) * gap;
 	}
 
-	private int handXOrigin(int screenW, int handSize, int cw, int gap) {
-		return (screenW - totalHandWidth(handSize, cw, gap)) / 2;
+	private int handXOrigin(int screenW, int handSize, int cardWidth, int gap) {
+		return (screenW - totalHandWidth(handSize, cardWidth, gap)) / 2;
 	}
 
-	private int handYOrigin(int screenH, int ch, int bm) {
-		return screenH - bm - ch;
+	private int handYOrigin(int screenH, int cardHeight, int bottomMargin) {
+		return screenH - bottomMargin - cardHeight;
 	}
 
 	@Override
 	public void showIntro() {
 		if (context == null)
 			return;
-		renderIntro();
-		waitForIntroAction();
-	}
-
-	private void renderIntro() {
 		var screen = context.getScreenInfo();
 		context.renderFrame(g -> {
 			drawFullBackground(g, screen.width(), screen.height(), Color.BLACK);
 			drawLogo(g, screen.width(), screen.height());
 			drawIntroText(g, screen.width(), screen.height());
 		});
+		waitForIntroAction();
 	}
 
 	private void drawFullBackground(Graphics2D graphics2D, int width,
@@ -110,12 +106,13 @@ public final class GraphicView implements View {
 		var logo = AssetManager.logo();
 		if (logo == null)
 			return;
-		int targetWidth = (width * 60) / 100;
-		double scale = Math.min(1.0, (double) targetWidth / logo.getWidth());
-		int sw = (int) (logo.getWidth() * scale);
-		int sh = (int) (logo.getHeight() * scale);
-		graphics2D.drawImage(logo, (width - sw) / 2,
-				(height - sh) / 2 - (int) (height * 0.05f), sw, sh, null);
+		var targetWidth = (width * 60) / 100;
+		var scale = Math.min(1.0, (double) targetWidth / logo.getWidth());
+		var screenWidth = (int) (logo.getWidth() * scale);
+		var screenHeight = (int) (logo.getHeight() * scale);
+		graphics2D.drawImage(logo, (width - screenWidth) / 2,
+				(height - screenHeight) / 2 - (int) (height * 0.05d),
+				screenWidth, screenHeight, null);
 	}
 
 	private void drawIntroText(Graphics2D graphics2D, int width, int height) {
@@ -124,7 +121,7 @@ public final class GraphicView implements View {
 		var text = "Appuyez sur ESPACE pour commencer";
 		var fontMetrics = graphics2D.getFontMetrics();
 		graphics2D.drawString(text, (width - fontMetrics.stringWidth(text)) / 2,
-				height - (int) (height * 0.09f));
+				height - (int) (height * 0.09d));
 	}
 
 	private void waitForIntroAction() {
@@ -216,7 +213,7 @@ public final class GraphicView implements View {
 		var lines = entries.stream().map(e -> e.getKey() + "("
 				+ e.getKey().combination() + ") x" + e.getValue())
 				.collect(Collectors.toList());
-		var offsetY = height * 0.15f;
+		var offsetY = (int) (height * 0.15d);
 		graphics2D.drawString("Planètes : ", width, height);
 		for (var i = 0; i < lines.size(); i++) {
 			graphics2D.drawString(" - " + lines.get(i), width + width * 3,
@@ -230,8 +227,8 @@ public final class GraphicView implements View {
 		graphics2D.setFont(AssetManager.comboFont());
 		var text = "Vous venez de jouer : " + combination + " (+ " + score
 				+ ")";
-		graphics2D.drawString(text, (int)(width * 0.02f),
-				height - bottomMargin - cardHeight - (int)(height * 0.05f));
+		graphics2D.drawString(text, (int) (width * 0.02d),
+				height - bottomMargin - cardHeight - (int) (height * 0.05d));
 	}
 
 	private void drawHand(Graphics2D graphics2D, GameState gameState,
@@ -243,18 +240,20 @@ public final class GraphicView implements View {
 		IntStream.range(0, hand.size()).forEach(i -> {
 			var x = xo + i * (cardWidth + gap);
 			var y = selectedIndexes.contains(i)
-					? yo - (int) (cardHeight * 0.18f)
+					? yo - (int) (cardHeight * 0.18d)
 					: yo;
 			var card = hand.get(i);
 			var image = AssetManager.cardImage(card);
 			if (image != null) {
 				graphics2D.drawImage(image, x, y, cardWidth, cardHeight, null);
+			} else {
+				graphics2D.drawRect(x, y, cardWidth, cardHeight);
+				graphics2D.drawString(hand.get(i).toString(), x + 12, y + 28);
 			}
 			if (selectedIndexes.contains(i)) {
 				graphics2D.setColor(Color.WHITE);
 				graphics2D.setStroke(new BasicStroke(3));
-				graphics2D.drawRoundRect(x - 3, y - 3, cardWidth + 6,
-						cardHeight + 6, 20, 20);
+				graphics2D.drawRoundRect(x, y, cardWidth, cardHeight, 20, 20);
 			}
 		});
 	}
@@ -276,13 +275,13 @@ public final class GraphicView implements View {
 		if (handSize <= 0)
 			return false;
 		var cardWidth = cardWidth(width);
-		var carHeight = cardHeight(width);
+		var cardHeight = cardHeight(width);
 		var gap = gap(width);
-		int bottomMargin = bottomMargin(height);
+		var bottomMargin = bottomMargin(height);
 		var xo = handXOrigin(width, handSize, cardWidth, gap);
-		var yo = handYOrigin(height, carHeight, bottomMargin);
+		var yo = handYOrigin(height, cardHeight, bottomMargin);
 		return x >= xo && x <= xo + totalHandWidth(handSize, cardWidth, gap)
-				&& y >= yo && y <= yo + carHeight;
+				&& y >= yo && y <= yo + cardHeight;
 	}
 
 	@Override
@@ -363,9 +362,9 @@ public final class GraphicView implements View {
 			int height, Color color) {
 		graphics2D.setColor(color);
 		graphics2D.setFont(AssetManager.titleFont());
-		var fm = graphics2D.getFontMetrics();
-		graphics2D.drawString(text, (width - fm.stringWidth(text)) / 2,
-				height / 2 - 20);
+		var fontMetrics = graphics2D.getFontMetrics();
+		graphics2D.drawString(text, (width - fontMetrics.stringWidth(text)) / 2,
+				height / 2 - height * 0.02f);
 	}
 
 	private void sleep(int ms) {
@@ -378,7 +377,8 @@ public final class GraphicView implements View {
 	private void drawPanel(Graphics2D graphics2D, int x, int y, int width,
 			int height, Color background, Color border) {
 		graphics2D.setColor(new Color(0, 0, 0, 100));
-		graphics2D.fillRoundRect(x + 5, y + 5, width, height, 25, 25);
+		graphics2D.fillRoundRect(x + (int) (x * 0.01d), y + (int) (y * 0.01d),
+				width, height, 25, 25);
 		graphics2D.setColor(background);
 		graphics2D.fillRoundRect(x, y, width, height, 25, 25);
 		graphics2D.setColor(border);
@@ -394,14 +394,14 @@ public final class GraphicView implements View {
 		graphics2D.fillOval(x, y, size, size);
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setFont(AssetManager.titleFont());
-		graphics2D.drawString("?", x + (int) (width * 0.015f),
-				y + (int) (height * 0.05f));
+		graphics2D.drawString("?", x + (int) (width * 0.015d),
+				y + (int) (height * 0.06d));
 	}
 
 	private void updateHelpButton(int width, int height) {
 		var size = (int) (width * HELP_BUTTON_RATIO);
-		var x = width - (int) (width * 0.07f) - size / 2;
-		var y = (int) (height * 0.025f);
+		var x = width - (int) (width * 0.07d) - size / 2;
+		var y = (int) (height * 0.025d);
 		helpButton.setBounds(x, y, size, size);
 	}
 
@@ -414,10 +414,10 @@ public final class GraphicView implements View {
 				new Color(0, 0, 0, 240), Color.WHITE);
 		var comboguide = AssetManager.comboGuide();
 		if (comboguide != null) {
-			graphics2D.drawImage(comboguide, x + (int) (width * 0.02f),
-					y + (int) (height * 0.02f),
-					popupWidth - (int) (width * 0.04f),
-					popupHeight - (int) (height * 0.04f), null);
+			graphics2D.drawImage(comboguide, x + (int) (width * 0.02d),
+					y + (int) (height * 0.02d),
+					popupWidth - (int) (width * 0.04d),
+					popupHeight - (int) (height * 0.04d), null);
 		}
 	}
 }
