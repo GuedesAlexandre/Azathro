@@ -9,6 +9,12 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 public final class ConsoleView implements View {
+	private static final String RED = "\u001B[31m";
+	private static final String YELLOW = "\u001B[33m";
+	private static final String GREEN = "\u001B[32m";
+	private static final String CYAN = "\u001B[36m";
+	private static final String RESET = "\u001B[0m";
+	
     @Override
     public void showIntro() {
         IO.println("""
@@ -28,12 +34,13 @@ public final class ConsoleView implements View {
 
     @Override
     public void showGameState(GameState gameState, Set<Integer> selectedIndexes, String lastCombination, Integer lastScore) {
-        IO.println(gameState);
-        IO.println(gameState.playerState());
         if (lastCombination != null) {
             IO.println("Derniere combinaison jouee : " + lastCombination + " (Score : " + lastScore + ")");
         }
+        IO.println(gameState);
+        IO.println(gameState.playerState());
         showHandWithSelection(gameState.currentHand(), selectedIndexes);
+        showPlanets(gameState);
     }
 
     private void showHandWithSelection(List<Card> cards, Set<Integer> selectedIndexes) {
@@ -41,7 +48,7 @@ public final class ConsoleView implements View {
         IntStream.range(0, cards.size())
                 .forEach(i -> {
                     String prefix = selectedIndexes.contains(i) ? "[X] " : "[ ] ";
-                    IO.println(prefix + i + ": " + cards.get(i));
+                    IO.println(prefix + i + ": " + coloredCard(cards.get(i)));
                 });
     }
 
@@ -83,8 +90,10 @@ public final class ConsoleView implements View {
 
     public void showSelectCardsPrompt() {
         IO.println("""
+        		
                 Choisissez entre 1 et 5 cartes.
                 Tapez -1 pour terminer.
+                
                 """);
     }
 
@@ -95,4 +104,31 @@ public final class ConsoleView implements View {
     public void showCardAlreadyChosen() {
         IO.println("Carte deja choisie.");
     }
+    
+    private void showPlanets(GameState gameState) {
+        var planets = gameState.playerState().planetDrawed();
+        IO.println("Planètes possédées : ");
+        if (planets.isEmpty()) {
+            IO.println("Aucune planète.");
+        }
+        planets.forEach((planet, level) -> {
+            IO.println(
+                "- " + planet.name()
+                + " [" + planet.combination() + "]"
+                + " x" + level
+            );
+        });
+    }
+    
+    private String coloredCard(Card card) {
+        var suit = card.suit();
+        var color = switch (suit) {
+            case HEART -> RED;
+            case DIAMOND -> YELLOW;
+            case CLUB -> GREEN;
+            case SPADE -> CYAN;
+        };
+        return color + card + RESET;
+    }
+    
 }

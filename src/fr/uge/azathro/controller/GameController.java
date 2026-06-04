@@ -63,6 +63,11 @@ public final class GameController {
                     if (pe.action() != PointerEvent.Action.POINTER_DOWN) continue;
                     var screen = context.getScreenInfo();
                     var handSize = engine.gameState().currentHand().size();
+                    var helpRect = graphicView.getHelpButton();
+                    if (helpRect != null && helpRect.contains(pe.location().x(), pe.location().y())) {
+                    	graphicView.toggleGuide();
+                    	continue;
+                    }
                     if (graphicView.isInsideCardArea(pe.location().x(), pe.location().y(), screen.width(), screen.height(), handSize)) {
                         toggleSelect(graphicView.cardIndexFromX(pe.location().x(), screen.width(), handSize));
                     }
@@ -83,6 +88,7 @@ public final class GameController {
             view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
 
             selectCardsConsole(consoleView);
+            view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
             playHand();
 
             if (engine.isGameOver()) {
@@ -118,8 +124,6 @@ public final class GameController {
             view.showBlindSuccess();
             var planet = engine.advanceToNextBlind();
             view.showPlanetDrawn(planet);
-            lastCombination = null;
-            lastScore = null;
         }
     }
 
