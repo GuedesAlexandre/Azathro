@@ -3,21 +3,11 @@ package fr.uge.azathro.view;
 import com.github.forax.zen.ApplicationContext;
 import com.github.forax.zen.KeyboardEvent;
 import fr.uge.azathro.model.GameState;
-import fr.uge.azathro.domain.Card;
 import fr.uge.azathro.domain.types.planet.Planet;
-import fr.uge.azathro.domain.types.rank.Rank;
-import fr.uge.azathro.domain.types.suit.Suit;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public final class GraphicView implements View {
@@ -212,7 +202,7 @@ public final class GraphicView implements View {
 		var entries = gameState.playerState().planetDrawed().entrySet();
 		var lines = entries.stream().map(e -> e.getKey() + "("
 				+ e.getKey().combination() + ") x" + e.getValue())
-				.collect(Collectors.toList());
+				.toList();
 		var offsetY = (int) (height * 0.15d);
 		graphics2D.drawString("Planètes : ", width, height);
 		for (var i = 0; i < lines.size(); i++) {
@@ -412,9 +402,9 @@ public final class GraphicView implements View {
 		var y = (height - popupHeight) / 2;
 		drawPanel(graphics2D, x, y, popupWidth, popupHeight,
 				new Color(0, 0, 0, 240), Color.WHITE);
-		var comboguide = AssetManager.comboGuide();
-		if (comboguide != null) {
-			graphics2D.drawImage(comboguide, x + (int) (width * 0.02d),
+		var comboGuide = AssetManager.comboGuide();
+		if (comboGuide != null) {
+			graphics2D.drawImage(comboGuide, x + (int) (width * 0.02d),
 					y + (int) (height * 0.02d),
 					popupWidth - (int) (width * 0.04d),
 					popupHeight - (int) (height * 0.04d), null);
