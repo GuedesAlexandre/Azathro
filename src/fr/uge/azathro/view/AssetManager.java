@@ -30,7 +30,7 @@ public class AssetManager {
 		LOGO = loadImage("assets/logo.png");
 		COMBOGUIDE = loadImage(ASSETS_PATH + "hands.png");
 		loadCards();
-		Font font = loadFont(ASSETS_PATH + "Pix32.ttf");
+		Font font = loadFont();
 		HEADER_FONT = derive(font, 26f);
 		COMBO_FONT = derive(font, 28f);
 		BUTTON_FONT = derive(font, 32f);
@@ -89,21 +89,21 @@ public class AssetManager {
 	private static void loadCards() {
 		for (var suit : Suit.values()) {
 			for (var rank : Rank.values()) {
-				var path = ASSETS_PATH + "cards/" + rank.name().toLowerCase()
+				var path = ASSETS_PATH + "cards/" + rank.name()
 						+ "_" + suit.name() + ".png";
 				try {
 					var image = ImageIO.read(new File(path));
 					cardImages.put(new Card(suit, rank), image);
 				} catch (IOException e) {
-					throw new IllegalStateException(e.getMessage());
+					return;
 				}
 			}
 		}
 	}
 
-	private static Font loadFont(String path) {
+	private static Font loadFont() {
 		try {
-			return Font.createFont(Font.TRUETYPE_FONT, new File(path));
+			return Font.createFont(Font.TRUETYPE_FONT, new File("src/fr/uge/azathro/view/assets/Pix32.ttf"));
 		} catch (IOException | FontFormatException e) {
 			return new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 		}

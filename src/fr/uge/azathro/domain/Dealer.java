@@ -9,11 +9,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public record Dealer() {
-    public static Combination evaluate(Hand hand, Map<Planet, Integer> planets) {
+public interface Dealer {
+    static Combination evaluate(Hand hand, Map<Planet, Integer> planets) {
         Objects.requireNonNull(hand);
         Objects.requireNonNull(planets);
         var cards = hand.cards();
+        var chipsOfCard = cards.stream().mapToInt(el->el.rank().value()).sum();
         if (cards.isEmpty() || cards.size() > 5) {
             throw new IllegalArgumentException("cards size must be between 1 and 5");
         }
@@ -31,54 +32,54 @@ public record Dealer() {
         var pairs = counts.values().stream().filter(v -> v == 2).count();
         if (isStraight && isFlush) {
             return new StraightFlush(
-                    100 + bonusChips(Planet.NEPTUNE, planets),
+                    chipsOfCard + 100 + bonusChips(Planet.NEPTUNE, planets),
                     8 + bonusMult(Planet.NEPTUNE, planets)
             );
         }
         if (hasFour) {
             return new FourOfAKind(
-                    60 + bonusChips(Planet.MARS, planets),
+                    chipsOfCard + 60 + bonusChips(Planet.MARS, planets),
                     7 + bonusMult(Planet.MARS, planets)
             );
         }
         if (hasThree && pairs == 1) {
             return new FullHouse(
-                    40 + bonusChips(Planet.TERRE, planets),
+                    chipsOfCard + 40 + bonusChips(Planet.TERRE, planets),
                     4 + bonusMult(Planet.TERRE, planets)
             );
         }
         if (isFlush) {
             return new Flush(
-                    35 + bonusChips(Planet.JUPITER, planets),
+                    chipsOfCard + 35 + bonusChips(Planet.JUPITER, planets),
                     4 + bonusMult(Planet.JUPITER, planets)
             );
         }
         if (isStraight) {
             return new Straight(
-                    30 + bonusChips(Planet.SATURNE, planets),
+                    chipsOfCard + 30 + bonusChips(Planet.SATURNE, planets),
                     4 + bonusMult(Planet.SATURNE, planets)
             );
         }
         if (hasThree) {
             return new ThreeOfAKind(
-                    30 + bonusChips(Planet.VENUS, planets),
+                    chipsOfCard + 30 + bonusChips(Planet.VENUS, planets),
                     3 + bonusMult(Planet.VENUS, planets)
             );
         }
         if (pairs == 2) {
             return new TwoPair(
-                    20 + bonusChips(Planet.URANUS, planets),
+                     chipsOfCard + 20 + bonusChips(Planet.URANUS, planets),
                     2 + bonusMult(Planet.URANUS, planets)
             );
         }
         if (pairs == 1) {
             return new Pair(
-                    10 + bonusChips(Planet.MERCURE, planets),
+                    chipsOfCard + 10 + bonusChips(Planet.MERCURE, planets),
                     2 + bonusMult(Planet.MERCURE, planets)
             );
         }
         return new HighCard(
-                5 + bonusChips(Planet.PLUTON, planets),
+                chipsOfCard + 5 + bonusChips(Planet.PLUTON, planets),
                 1 + bonusMult(Planet.PLUTON, planets)
         );
     }
