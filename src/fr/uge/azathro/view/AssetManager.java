@@ -26,7 +26,7 @@ public class AssetManager {
 	private static final Font TITLE_FONT;
 
 	static {
-		BACKGROUND = loadImage(ASSETS_PATH + "background.png");
+		BACKGROUND = loadImage(ASSETS_PATH + "background.jpg");
 		LOGO = loadImage("assets/logo.png");
 		COMBOGUIDE = loadImage(ASSETS_PATH + "hands.png");
 		loadCards();

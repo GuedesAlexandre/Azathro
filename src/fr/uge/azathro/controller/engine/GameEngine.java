@@ -11,6 +11,7 @@ import fr.uge.azathro.model.PlayerState;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public record GameEngine(GameState gameState) {
     private static final int HAND_SIZE = 8;
@@ -19,7 +20,16 @@ public record GameEngine(GameState gameState) {
         gameState.fillHandToSize(HAND_SIZE);
     }
 
+    public void discardActiveCards(List<Card> selectedCards) {
+        Objects.requireNonNull(selectedCards);
+        if (selectedCards.isEmpty() || gameState.playerState().hasNoDiscardsLeft()) return;
+        gameState.removeCardsFromHand(selectedCards);
+        gameState.discardCards(selectedCards);
+        gameState.updatePlayerState(gameState.playerState().withDecrementDiscard());
+    }
+
     public int playHand(List<Card> selectedCards) {
+        Objects.requireNonNull(selectedCards);
         var hand = new Hand(selectedCards);
         var combination = Dealer.evaluate(hand, gameState.playerState().planetDrawed());
         var score = Combination.computeScore(combination);
@@ -33,6 +43,7 @@ public record GameEngine(GameState gameState) {
     }
 
     public Combination evaluateHand(List<Card> selectedCards) {
+        Objects.requireNonNull(selectedCards);
         var hand = new Hand(selectedCards);
         return Dealer.evaluate(hand, gameState.playerState().planetDrawed());
     }
@@ -57,6 +68,7 @@ public record GameEngine(GameState gameState) {
                 oldPlayer.name(),
                 0,
                 PlayerState.HANDCOUNT,
+                PlayerState.DISCARDCOUNT,
                 map
         );
         gameState.updatePlayerState(newPlayer);

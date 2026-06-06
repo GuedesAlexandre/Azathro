@@ -5,6 +5,7 @@ import fr.uge.azathro.domain.types.planet.Planet;
 import fr.uge.azathro.model.GameState;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -34,8 +35,13 @@ public final class ConsoleView implements View {
 
     @Override
     public void showGameState(GameState gameState, Set<Integer> selectedIndexes, String lastCombination, Integer lastScore) {
+        Objects.requireNonNull(gameState);
+        Objects.requireNonNull(selectedIndexes);
         if (lastCombination != null) {
-            IO.println("Derniere combinaison jouee : " + lastCombination + " (Score : " + lastScore + ")");
+            var msg = lastScore != null
+                    ? "Derniere combinaison jouee : " + lastCombination + " (Score : " + lastScore + ")"
+                    : lastCombination + " effectuee";
+            IO.println(msg);
         }
         IO.println(gameState);
         IO.println(gameState.playerState());
@@ -44,6 +50,8 @@ public final class ConsoleView implements View {
     }
 
     private void showHandWithSelection(List<Card> cards, Set<Integer> selectedIndexes) {
+        Objects.requireNonNull(cards);
+        Objects.requireNonNull(selectedIndexes);
         IO.println("Main du joueur :");
         IntStream.range(0, cards.size())
                 .forEach(i -> {
@@ -54,6 +62,7 @@ public final class ConsoleView implements View {
 
     @Override
     public void showPlanetDrawn(Planet planet) {
+        Objects.requireNonNull(planet);
         IO.println("Planete tire : " + planet + " (" + planet.combination() + " bonus : "
                 + planet.bonusChips() + " chips, x" + planet.bonusMult() + " multiplicateur)");
     }
@@ -103,6 +112,14 @@ public final class ConsoleView implements View {
 
     public void showCardAlreadyChosen() {
         IO.println("Carte deja choisie.");
+    }
+
+    public void showActionPrompt() {
+        IO.println("""
+
+                Action ? J = Jouer | D = Défausser
+
+                """);
     }
     
     private void showPlanets(GameState gameState) {

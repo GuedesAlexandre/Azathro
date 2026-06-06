@@ -15,12 +15,11 @@ public class Main {
     static void main(String[] args){
         var deck = new Deck();
         var blind = new Blind(80L);
-        var playerState = new PlayerState("Le fameux joueur pro");
+        var playerState = new PlayerState("William Dyer");
         var gameState = new GameState(blind, deck, playerState);
 
         boolean graphic = Arrays.asList(args).contains("--graphic");
         View view;
-
         if (graphic) {
             view = new GraphicView();
         } else {

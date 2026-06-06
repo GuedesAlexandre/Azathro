@@ -4,12 +4,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class Hand {
-    private final List<Card> cards;
-
-    public Hand(List<Card> cards) {
+public record Hand(List<Card> cards) {
+    public Hand {
         Objects.requireNonNull(cards);
-        this.cards = cards;
     }
     @Override
     public String toString() {
@@ -19,11 +16,9 @@ public class Hand {
         return sb.toString();
     }
 
-    public List<Card> cards() {
-        return cards;
-    }
-
     public static Hand fromIndexes(Set<Integer> indexes, List<Card> availableCards) {
+       Objects.requireNonNull(indexes);
+       Objects.requireNonNull(availableCards);
         var cards = indexes.stream()
                 .sorted()
                 .map(availableCards::get)
