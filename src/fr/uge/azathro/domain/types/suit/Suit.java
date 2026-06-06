@@ -1,5 +1,7 @@
 package fr.uge.azathro.domain.types.suit;
 
+import java.util.Objects;
+
 public enum Suit {
     CLUB("♣"),
     DIAMOND("♦"),
@@ -9,6 +11,7 @@ public enum Suit {
     private final String symbol;
 
     Suit(String symbol) {
+        Objects.requireNonNull(symbol);
         this.symbol = symbol;
     }
 

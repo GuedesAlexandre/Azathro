@@ -7,6 +7,7 @@ import fr.uge.azathro.domain.types.planet.Planet;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -29,6 +30,7 @@ public final class GraphicView implements View {
 	private boolean showGuide = false;
 
 	public void setContext(ApplicationContext context) {
+		Objects.requireNonNull(context);
 		this.context = context;
 	}
 
@@ -106,6 +108,7 @@ public final class GraphicView implements View {
 	}
 
 	private void drawIntroText(Graphics2D graphics2D, int width, int height) {
+		Objects.requireNonNull(graphics2D);
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setFont(AssetManager.buttonFont());
 		var text = "Appuyez sur ESPACE pour commencer";
@@ -142,6 +145,7 @@ public final class GraphicView implements View {
 	@Override
 	public void showGameState(GameState gameState, Set<Integer> selectedIndexes,
 			String lastCombination, Integer lastScore) {
+		Objects.requireNonNull(gameState, "gameState must not be null");
 		if (context == null)
 			return;
 		var screen = context.getScreenInfo();
@@ -191,8 +195,9 @@ public final class GraphicView implements View {
 		graphics2D.drawString("Score: " + gameState.playerState().totalScore(),
 				textX, textY + offsetY * 2);
 		graphics2D.drawString(
-				"Deck: " + gameState.deck().size() + " | Mains restantes: "
-						+ gameState.playerState().handCount(),
+				"Deck: " + gameState.deck().size() + " | Mains: "
+						+ gameState.playerState().handCount()
+						+ " | Défausses: " + gameState.playerState().discardCount(),
 				textX, textY + offsetY * 3);
 		drawPlanetsInfo(graphics2D, gameState, textX, textY + offsetY * 4);
 	}
@@ -215,8 +220,9 @@ public final class GraphicView implements View {
 			String combination, Integer score, int width, int height,
 			int cardHeight, int bottomMargin) {
 		graphics2D.setFont(AssetManager.comboFont());
-		var text = "Vous venez de jouer : " + combination + " (+ " + score
-				+ ")";
+		var text = score != null
+				? "Vous venez de jouer : " + combination + " (+ " + score + ")"
+				: combination + " effectuée";
 		graphics2D.drawString(text, (int) (width * 0.02d),
 				height - bottomMargin - cardHeight - (int) (height * 0.05d));
 	}
@@ -327,6 +333,7 @@ public final class GraphicView implements View {
 
 	@Override
 	public void showPlanetDrawn(Planet planet) {
+		Objects.requireNonNull(planet);
 		if (context == null)
 			return;
 		var screen = context.getScreenInfo();
@@ -353,8 +360,8 @@ public final class GraphicView implements View {
 		graphics2D.setColor(color);
 		graphics2D.setFont(AssetManager.titleFont());
 		var fontMetrics = graphics2D.getFontMetrics();
-		graphics2D.drawString(text, (width - fontMetrics.stringWidth(text)) / 2,
-				height / 2 - height * 0.02f);
+		graphics2D.drawString(text, (float) (width - fontMetrics.stringWidth(text)) / 2,
+				(float) height / 2 - height * 0.02f);
 	}
 
 	private void sleep(int ms) {

@@ -1,5 +1,7 @@
 package fr.uge.azathro.domain.types.rank;
 
+import java.util.Objects;
+
 public enum Rank {
     TWO(2, "2"),
     THREE(3, "3"),
@@ -19,6 +21,10 @@ public enum Rank {
     private final String name;
 
     Rank(int value, String name) {
+        if(value < 1 || value > 14){
+            throw new IllegalArgumentException();
+        }
+        Objects.requireNonNull(name);
         this.value = value;
         this.name = name;
     }

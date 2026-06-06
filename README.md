@@ -30,12 +30,10 @@ src/fr/uge/azathro/
 │   ├── engine/
     │   └── GameEngine.java
     ├── GameController.java
-│   └── GraphicGameController.java
 └── view/   
     ├── assets/
     ├── ConsoleView.java
     ├── GraphicView.java 
-    ├── GraphicViewState.java 
     └── View.java
               
 ```
@@ -63,13 +61,36 @@ Si vous souhaitez lancer la vue graphique, rajoutez l'argument "--graphic" à l'
 - boucle de jeu: 5 blinds constituées d'un nombre de mains limités, le jouer pioche 8 cartes et joue une main de 1 à 5 cartes à chaque tour. L'échec d'un blind met immédiatement fin au jeu.
 - Gestion des planètes en fin de Blind avec leurs effets sur les combinaisons
 - vue console fonctionnelle
-- vue graphique fonctionnelle mais imparfaite
+- vue graphique fonctionnelle
+- score par cartes
+- défausse active
 
 
-## Amélioration probables
-Il manque un message de victoire sur la partie graphique, et la vue graphique est encore très basique.
-Interface graphique : utiliser des sprites pour les cartes, améliorer la disposition des éléments, ajouter des animations pour les actions du jeu.
-Extras à minima que nous allons réaliser : Score par cartes et Défausse active.
-Celle qu'on pourrait faire si on voit qu'on a plus de temps : Shop et gestion de Jokers.
+## Avec notre archi combien ça coûte finalement les autres extras ?
+Analyse par extension
+
+C. Jokers — Effort FAIBLE
+
+Le pattern existe déjà avec Planet. Il suffit pour nous créer une sealed interface JokerEffect, ajouter List<Joker> dans PlayerState, et étendre Dealer.evaluate() pour appliquer les effets jokers après les planets.
+
+D. Monnaie & Boutique — Effort MOYEN
+
+Ajouter int coins dans PlayerState, créer un Shop record avec des ShopItem, et insérer une phase boutique dans GameEngine.advanceToNextBlind(). Le View sealed oblige à implémenter showShop() dans ConsoleView ET GraphicView — à faire ensemble. (c'est peut être le plus long question de design)
+
+E. Blinds avec contraintes — Effort FAIBLE
+
+Blind est un record. On ajouterait Optional<BlindConstraint> où BlindConstraint est une sealed interface (DisabledCombinations, HiddenHand, etc.). Dealer.evaluate() vérifie la contrainte avant de retourner la combinaison. Chaque nouveau type de contrainte = un nouveau record.
+
+F. Deck personnalisable — Effort FAIBLE
+
+Deck encapsule déjà le ArrayList<Card>. On ajouterait juste addCard() / removeCard(), et on insère une phase dans GameEngine.advanceToNextBlind() (même point d'ancrage que D).
+
+G. Sauvegarde — Effort MOYEN
+
+PlayerState est un record → sérialisation triviale. On représente un SaveManager dans un package persistence/. Les records sérialisent naturellement leurs composants. Main.java charge le save s'il existe au démarrage.
+
+H. Mode infini & High Score — Effort TRÈS FAIBLE
+
+On supprime la constante NB_BLINDS = 5 dans GameState (ou la rendre conditionnelle via --infinite). La progression ×1.5 est déjà infinie par nature.On ajoute une interface fonctionnelle HighScoreManager qui remplie un fichier, c'est tout.
 
 

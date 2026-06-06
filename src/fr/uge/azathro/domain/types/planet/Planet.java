@@ -1,5 +1,6 @@
 package fr.uge.azathro.domain.types.planet;
 
+import java.util.Objects;
 import java.util.Random;
 
 public enum Planet {
@@ -18,6 +19,10 @@ public enum Planet {
 
 
     Planet(String combination, int bonusChips, int bonusMult) {
+        Objects.requireNonNull(combination);
+        if(bonusChips <=0 || bonusMult <=0){
+            throw new IllegalArgumentException();
+        }
         this.combination = combination;
         this.bonusChips = bonusChips;
         this.bonusMult = bonusMult;

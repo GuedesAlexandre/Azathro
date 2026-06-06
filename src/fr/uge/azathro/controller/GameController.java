@@ -23,6 +23,8 @@ public final class GameController {
     private final Scanner scanner = new Scanner(System.in);
 
     public GameController(GameState gameState, View view) {
+        Objects.requireNonNull(gameState);
+        Objects.requireNonNull(view);
         this.engine = new GameEngine(gameState);
         this.view = view;
     }
@@ -58,13 +60,16 @@ public final class GameController {
                     if (ke.key() == KeyboardEvent.Key.SPACE) {
                         playHand();
                     }
+                    if (ke.key() == KeyboardEvent.Key.D) {
+                        discardHand();
+                    }
                 }
                 case PointerEvent pe -> {
                     if (pe.action() != PointerEvent.Action.POINTER_DOWN) continue;
                     var screen = context.getScreenInfo();
                     var handSize = engine.gameState().currentHand().size();
                     var helpRect = graphicView.getHelpButton();
-                    if (helpRect != null && helpRect.contains(pe.location().x(), pe.location().y())) {
+                    if (helpRect.contains(pe.location().x(), pe.location().y())) {
                     	graphicView.toggleGuide();
                     	continue;
                     }
@@ -89,7 +94,14 @@ public final class GameController {
 
             selectCardsConsole(consoleView);
             view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
-            playHand();
+
+            consoleView.showActionPrompt();
+            var action = scanner.next().trim().toUpperCase();
+            if (action.equals("D")) {
+                discardHand();
+            } else {
+                playHand();
+            }
 
             if (engine.isGameOver()) {
                 view.showGameOver();
@@ -116,6 +128,15 @@ public final class GameController {
         var combination = engine.evaluateHand(cards);
         lastScore = engine.playHand(cards);
         lastCombination = combination.getClass().getSimpleName();
+        selectedIndexes.clear();
+    }
+
+    private void discardHand() {
+        if (selectedIndexes.isEmpty()) return;
+        var cards = Hand.fromIndexes(selectedIndexes, engine.gameState().currentHand()).cards();
+        engine.discardActiveCards(cards);
+        lastCombination = "Défausse";
+        lastScore = null;
         selectedIndexes.clear();
     }
 

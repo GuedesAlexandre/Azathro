@@ -46,7 +46,8 @@ public class GameState {
     }
 
     public void setCurrentHand(List<Card> cards) {
-        currentHand = new ArrayList<>(cards);
+        Objects.requireNonNull(cards);
+		currentHand = new ArrayList<>(cards);
     }
 
     public void updatePlayerState(PlayerState playerState) {
@@ -82,12 +83,16 @@ public class GameState {
 	}
 
 	public void removeCardsFromHand(List<Card> cardsToRemove) {
+		Objects.requireNonNull(cardsToRemove);
         this.currentHand = currentHand.stream()
                 .filter(c -> !cardsToRemove.contains(c))
 				.collect(ArrayList::new	, ArrayList::add, ArrayList::addAll);
 	}
 
 	public void fillHandToSize(int targetSize) {
+		if(targetSize <0 || targetSize > 8) {
+			throw new IllegalArgumentException();
+		}
 		var currentHand = new ArrayList<>(this.currentHand);
 		var cardsToDraw = targetSize - currentHand.size();
 		currentHand.addAll(deck.draw(cardsToDraw));
@@ -95,6 +100,7 @@ public class GameState {
 	}
 
 	public void discardCards(List<Card> cards) {
+		Objects.requireNonNull(cards);
 		deck.addToDiscard(cards);
 	}
 
