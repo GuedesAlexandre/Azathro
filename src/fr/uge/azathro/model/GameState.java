@@ -66,7 +66,7 @@ public class GameState {
 	}
 
 	public boolean isFinished() {
-		return blindCount <= NB_BLINDS;
+		return blindCount > NB_BLINDS;
 	}
 
 

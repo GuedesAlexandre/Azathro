@@ -39,7 +39,7 @@ public final class GameController {
     private void graphicLoop(ApplicationContext context, GraphicView graphicView) {
         graphicView.setContext(context);
         view.showIntro();
-        while (engine.gameState().isFinished()) {
+        while (!engine.gameState().isFinished()) {
             if (engine.isGameOver()) {
                 view.showGameOver();
                 context.dispose();
@@ -88,7 +88,7 @@ public final class GameController {
 
     private void consoleLoop(ConsoleView consoleView) {
         view.showIntro();
-        while (engine.gameState().isFinished()) {
+        while (!engine.gameState().isFinished()) {
             engine.ensureHandFilled();
             view.showGameState(engine.gameState(), selectedIndexes, lastCombination, lastScore);
 
