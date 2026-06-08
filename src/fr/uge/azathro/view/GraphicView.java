@@ -200,6 +200,8 @@ public final class GraphicView implements View {
 						+ " | Défausses: " + gameState.playerState().discardCount(),
 				textX, textY + offsetY * 3);
 		drawPlanetsInfo(graphics2D, gameState, textX, textY + offsetY * 4);
+		graphics2D.drawString("D : pour défausser après sélection ",textX, textY + offsetY * 5);
+		graphics2D.drawString("ESPACE : pour jouer après sélection ",textX, textY + offsetY * 6);
 	}
 
 	private void drawPlanetsInfo(Graphics2D graphics2D, GameState gameState,
