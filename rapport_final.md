@@ -222,4 +222,5 @@ La bibliothèque zen nous a nécessité un temps d'adaptation, notamment pour la
 ## 3. Bilan du projet
 
 Nous aurions aimé avoir davantage de temps pour peaufiner le projet, notamment pour intégrer d’autres extras, enrichir l’interface et améliorer l’expérience utilisateur. Certains extras auraient certainement pu être ajoutées avec plus de temps.
-Malgré cela, le projet a été globalement une très bonne expérience pour nous. Il nous a permis de consolider les notions vues en cours et de les appliquer sur des projets plus conséquents comme ce celui-ci, tout en adoptant une architecture moderne de MVC. Travailler sur un projet complet, depuis le modèle jusqu’à la vue graphique, a été particulièrement enrichissant pour nous, autant sur le plan technique que sur le plan de l’organisation du travail en équipe.
+
+Malgré cela, le projet a été globalement une très bonne expérience pour nous. Il nous a permis de consolider les notions vues en cours et de les appliquer sur des projets plus conséquents comme celui-ci, tout en adoptant une architecture moderne de MVC. Travailler sur un projet complet, depuis le modèle jusqu’à la vue graphique, a été particulièrement enrichissant pour nous.
