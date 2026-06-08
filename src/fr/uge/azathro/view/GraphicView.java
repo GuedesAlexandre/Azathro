@@ -209,7 +209,7 @@ public final class GraphicView implements View {
 		var bottomMargin = bottomMargin(height);
 		var yo = handYOrigin(height, cardHeight, bottomMargin);
 		var lineH = (int) (height * 0.035d);
-		var textX = (int) (width * 0.75d);
+		var textX = (int) (width * 0.60d);
 		graphics2D.setColor(Color.WHITE);
 		graphics2D.setFont(AssetManager.headerFont());
 		graphics2D.drawString("D : pour défausser après sélection", textX, yo - lineH * 2);
