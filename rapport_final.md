@@ -1,5 +1,13 @@
 # Rapport projet Azathro
 
+Membres de l'équipe projet:
+
+| Nom Prénom | Filière |
+| ---  | --- |
+| GUEDES Alexandre | E3INFO |
+| ZHAN Julie | E3INFO |
+
+## Introduction 
 L'objectif de ce rapport est d’expliquer les principaux choix de conception réalisés pendant le développement du projet, et d’établir un retour d’expérience sur notre travail.
 
 # Partie 1 — Développement du projet
@@ -197,8 +205,8 @@ Nous avons travaillé avec Git, en nous répartissant les tâches en plusieurs b
 
 | Personne  | Tâches principales |
 | --- | --- |
-| Alexandre | model, domain, GameEngine et première version de GraphicView |
-| Julie | Logique de jeu GameController, ConsoleView, amélioration de GraphicView |
+| Alexandre | model, domain, GameController, première version de GraphicView, extras |
+| Julie | PlayerState, GameState, GameEngine, ConsoleView, amélioration de GraphicView |
 
 L'avancement du travail et les échanges étaient réguliers avec environ une pull request/semaine. Chaque modification était relue par l’autre membre du binôme avant d’être intégrée, afin de se mettre d'accord sur les choix de conception et de s’assurer que les interfaces entre les modules restaient cohérentes avant d'ajouter de nouvelles fonctionnalités.
 
