@@ -168,6 +168,7 @@ public final class GraphicView implements View {
 		}
 		drawHand(graphics2D, gameState, selectedIndexes, width, height,
 				cardWidth, cardHeight, gap, bottomMargin);
+		drawActionHints(graphics2D, width, height);
 		updateHelpButton(width, height);
 		drawHelpButton(graphics2D, width, height);
 		if (showGuide) {
@@ -200,8 +201,19 @@ public final class GraphicView implements View {
 						+ " | Défausses: " + gameState.playerState().discardCount(),
 				textX, textY + offsetY * 3);
 		drawPlanetsInfo(graphics2D, gameState, textX, textY + offsetY * 4);
-		graphics2D.drawString("D : pour défausser après sélection ",textX, textY + offsetY * 5);
-		graphics2D.drawString("ESPACE : pour jouer après sélection ",textX, textY + offsetY * 6);
+	}
+
+
+	private void drawActionHints(Graphics2D graphics2D, int width, int height) {
+		var cardHeight = cardHeight(width);
+		var bottomMargin = bottomMargin(height);
+		var yo = handYOrigin(height, cardHeight, bottomMargin);
+		var lineH = (int) (height * 0.035d);
+		var textX = (int) (width * 0.60d);
+		graphics2D.setColor(Color.WHITE);
+		graphics2D.setFont(AssetManager.headerFont());
+		graphics2D.drawString("D : pour défausser après sélection", textX, yo - lineH * 2);
+		graphics2D.drawString("ESPACE : pour jouer après sélection", textX, yo - lineH);
 	}
 
 	private void drawPlanetsInfo(Graphics2D graphics2D, GameState gameState,
