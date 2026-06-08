@@ -7,14 +7,13 @@ import fr.uge.azathro.domain.types.suit.Suit;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class AssetManager {
-	private static final String ASSETS_PATH = "src/fr/uge/azathro/view/assets/";
+	private static final String ASSETS_PATH = "assets/";
 
 	private static final Map<Card, BufferedImage> cardImages = new HashMap<>();
 	private static final BufferedImage BACKGROUND;
@@ -27,7 +26,7 @@ public class AssetManager {
 
 	static {
 		BACKGROUND = loadImage(ASSETS_PATH + "background.jpg");
-		LOGO = loadImage("assets/logo.png");
+		LOGO = loadImage(ASSETS_PATH + "logo.png");
 		COMBOGUIDE = loadImage(ASSETS_PATH + "hands.png");
 		loadCards();
 		Font font = loadFont();
@@ -71,8 +70,9 @@ public class AssetManager {
 	}
 
 	private static BufferedImage loadImage(String path) {
-		try {
-			return ImageIO.read(new File(path));
+		try (var stream = AssetManager.class.getResourceAsStream(path)) {
+			if (stream == null) return createFallbackImage();
+			return ImageIO.read(stream);
 		} catch (IOException e) {
 			return createFallbackImage();
 		}
@@ -89,21 +89,21 @@ public class AssetManager {
 	private static void loadCards() {
 		for (var suit : Suit.values()) {
 			for (var rank : Rank.values()) {
-				var path = ASSETS_PATH + "cards/" + rank.name()
-						+ "_" + suit.name() + ".png";
-				try {
-					var image = ImageIO.read(new File(path));
-					cardImages.put(new Card(suit, rank), image);
+				var path = ASSETS_PATH + "cards/" + rank.name() + "_" + suit.name() + ".png";
+				try (var stream = AssetManager.class.getResourceAsStream(path)) {
+					if (stream == null) continue;
+					cardImages.put(new Card(suit, rank), ImageIO.read(stream));
 				} catch (IOException e) {
-					return;
+					// carte manquante, on continue
 				}
 			}
 		}
 	}
 
 	private static Font loadFont() {
-		try {
-			return Font.createFont(Font.TRUETYPE_FONT, new File("src/fr/uge/azathro/view/assets/Pix32.ttf"));
+		try (var stream = AssetManager.class.getResourceAsStream("assets/Pix32.ttf")) {
+			if (stream == null) return new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+			return Font.createFont(Font.TRUETYPE_FONT, stream);
 		} catch (IOException | FontFormatException e) {
 			return new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 		}
