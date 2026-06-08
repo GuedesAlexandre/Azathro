@@ -183,6 +183,13 @@ Nous avons choisi cette séparation pour garder la logique de jeu indépendante 
 
 ---
 
+## 7. Chargement de ressources
+
+On a séparé le chargement des ressources graphiques (les images et le font) dans `AssetManager` afin d'éviter d'alourdir `GraphicView` et d'assurer que GraphicView se charge uniquement de l'affichage graphique. 
+Les ressources chargées sont alors des constantes définies dans la classe, et peuvent être appelées dans GraphicView.
+
+---
+
 # Partie 2 — Retour d'expérience
 
 ## 1. Organisation du travail et répartition des tâches
@@ -193,9 +200,9 @@ Nous avons travaillé avec Git, en nous répartissant les tâches en plusieurs b
 | Alexandre | model, domain, GameEngine et première version de GraphicView |
 | Julie | Logique de jeu GameController, ConsoleView, amélioration de GraphicView |
 
-L'avancement du travail était régulier (environ une pull request/semaine), avec des pull requests et des reviews mutuelles, ce qui permettait de corriger rapidement les erreurs et d’éviter des conflits trop importants.
+L'avancement du travail et les échanges étaient réguliers avec environ une pull request/semaine. Chaque modification était relue par l’autre membre du binôme avant d’être intégrée, afin de se mettre d'accord sur les choix de conception et de s’assurer que les interfaces entre les modules restaient cohérentes avant d'ajouter de nouvelles fonctionnalités.
 
-La répartition des tâches a été claire et assez équilibrée. Chacun a pu contribuer sur une partie bien définie du projet, tout en gardant une vue d’ensemble sur le fonctionnement global.  Les échanges étaient réguliers, notamment pour valider les choix de conception et s’assurer que les interfaces entre les modules restaient cohérentes avant d'intégrer de nouvelles fonctionnalités.
+La répartition des tâches a été claire et assez équilibrée. Chacun a pu contribuer sur une partie bien définie du projet, tout en gardant une vue d’ensemble sur le fonctionnement global. 
 
 
 ## 2. Difficultés rencontrées
@@ -205,3 +212,14 @@ La répartition des tâches a été claire et assez équilibrée. Chacun a pu co
 **Gestion de la défausse active.** La première version ne permettait de défausser qu'en fin de tour. L'implémentation de la *discard active* (défausser des cartes sélectionnées sans jouer la main) a nécessité d'introduire `discardActiveCards` dans `GameEngine` et d'ajuster le flux d'événements du contrôleur pour distinguer l'action « jouer » (ESPACE) de l'action « défausser » (D).
 
 **Intégration des sprites de cartes.** Le chargement des assets graphiques pouvant échouer (chemin introuvable, format non supporté), un `AssetManager` avec mécanisme de *fallback* a été introduit : si l'image d'une carte est absente, la vue affiche un rectangle avec le nom textuel de la carte.
+
+
+**Prise en main de la bibliothèque zen.** 
+La bibliothèque zen nous a nécessité un temps d'adaptation, notamment pour la gestion des événements et du rendu graphique, car il y a peu de documentations et d'exemples d'usage de la bibliothèque sur Internet.
+
+---
+
+## 3. Bilan du projet
+
+Nous aurions aimé avoir davantage de temps pour peaufiner le projet, notamment pour intégrer d’autres extras, enrichir l’interface et améliorer l’expérience utilisateur. Certains extras auraient certainement pu être ajoutées avec plus de temps.
+Malgré cela, le projet a été globalement une très bonne expérience pour nous. Il nous a permis de consolider les notions vues en cours et de les appliquer sur des projets plus conséquents comme ce celui-ci, tout en adoptant une architecture moderne de MVC. Travailler sur un projet complet, depuis le modèle jusqu’à la vue graphique, a été particulièrement enrichissant pour nous, autant sur le plan technique que sur le plan de l’organisation du travail en équipe.
