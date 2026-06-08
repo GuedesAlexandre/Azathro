@@ -1,20 +1,17 @@
+# Rapport projet Azathro
+
+L'objectif de ce rapport est d’expliquer les principaux choix de conception réalisés pendant le développement du projet, et d’établir un retour d’expérience sur notre travail.
+
 # Partie 1 — Développement du projet
 
-## 1. Présentation générale
 
-Azathro est le nom de notre projet qui a pour but de réaliser un balatri lite.
-Le joueur pioche des cartes, sélectionne jusqu'à 5 d'entre elles pour former une combinaison de poker, accumule des points et tente de franchir une série de 5 *blinds* (seuils de score à atteindre). 
-Entre chaque blind, il tire une carte Planète qui améliore définitivement une combinaison pour la suite de la partie.
+## 1. Architecture générale
 
----
-
-## 2. Architecture générale
-
-Notre projet suit une architecture **MVC** stricte découpée en quatre packages principaux :
+Notre projet suit une architecture **MVC** stricte, découpée en quatre packages principaux :
 
 ```
 fr.uge.azathro
-├── domain/          ← règles métier (cartes, combinaisons, évaluation)
+├── domain/          ← règles métier (cartes, combinaisons, évaluation, pioche/défausse, blind)
 ├── model/           ← état de la partie (GameState, PlayerState)
 ├── controller/      ← coordination (GameController, GameEngine)
 └── view/            ← affichage (ConsoleView, GraphicView)
@@ -22,7 +19,7 @@ fr.uge.azathro
 
 Cette séparation nous permet notamment de supporter deux modes d'affichage sans toucher à la logique de jeu : un mode **console** (pour les tests et la CI) et un mode **graphique** basé sur la bibliothèque `zen`.
 
-Le mode est choisi au lancement via un argument CLI (càd ajoute --graphic en program argument).
+Le mode est choisi au lancement via un argument CLI, c'est-à-dire en ajoutant `--graphic` dans Run Configurations/ Program arguments 
 
 ```java
 boolean graphic = Arrays.asList(args).contains("--graphic");
@@ -31,9 +28,9 @@ View view = graphic ? new GraphicView() : new ConsoleView();
 
 ---
 
-## 3. Choix de conception
+## 2. Choix de conception
 
-### 3.1 `View` : interface scellée
+### 2.1 `View` : interface scellée
 
 L'interface `View` est déclarée `sealed`, ce qui garantit statiquement que les deux seuls implémenteurs possibles sont `ConsoleView` et `GraphicView` :
 
@@ -58,7 +55,7 @@ switch (view) {
 }
 ```
 
-### 3.2 `Combination` : interface scellée et pattern matching
+### 2.2 `Combination` : interface scellée et pattern matching
 
 Les combinaisons de poker sont modélisées via une interface scellée `Combination` dont chaque implémentation est un `record` immuable portant ses deux paramètres de score (`chips`, `multiplier`) :
 
@@ -86,7 +83,7 @@ static int computeScore(Combination combination) {
 }
 ```
 
-### 3.3 Immutabilité de l'état joueur
+### 2.3 Immutabilité de l'état joueur
 
 `PlayerState` est un `record` Java. Modifier l'état du joueur (jouer une main, se défausser) produit une **nouvelle instance** plutôt que de muter l'objet existant, ce qui évite les effets de bord :
 
@@ -97,7 +94,7 @@ public PlayerState withScoreAndDecrementHand(int additionalScore) {
 }
 ```
 
-### 3.4 `Dealer` : interface utilitaire à méthodes statiques
+### 2.4 `Dealer` : interface utilitaire à méthodes statiques
 
 L'évaluation d'une main est entièrement encapsulée dans l'interface `Dealer` via une méthode statique, notre dealer c'est notre outil à évaluation.
 Ce choix évite d'instancier un objet sans état et maintient la logique d'évaluation en un seul endroit :
@@ -117,7 +114,7 @@ return isNormalStraight || isWheel;
 
 ---
 
-## 4. Système de score et Planètes
+## 3. Système de score et Planètes
 
 Le score d'une combinaison suit la formule : **Score = Chips × Multiplicateur**.
 
@@ -144,9 +141,9 @@ private static int bonusChips(Planet planet, Map<Planet, Integer> planets) {
 
 ---
 
-## 5. Gestion du paquet de cartes
+## 4. Gestion du paquet de cartes
 
-Le `Deck` maintient deux listes : le paquet principal et une **pile de défausse**. Lorsque le paquet ne contient plus assez de cartes pour une pioche, il se recharge automatiquement depuis la défausse avant de mélanger :
+Le `Deck` maintient deux listes : le paquet principal et une **pile de défausse**. Lorsque le paquet ne contient plus assez de cartes pour une pioche, il se recharge automatiquement depuis la défausse avant d'être mélangé à nouveau:
 
 ```java
 public void refillDeck(int cardsToDraw) {
@@ -161,9 +158,9 @@ Les cartes jouées et défaussées rejoignent la pile de défausse via `addToDis
 
 ---
 
-## 6. Vue graphique : positionnement proportionnel
+## 5. Vue graphique : positionnement proportionnel
 
-Tous les éléments de la vue graphique sont positionnés en **coordonnées relatives** à la taille de la fenêtre, via des constantes de ratio :
+Tous les éléments de `GraphicView` sont positionnés en **coordonnées relatives** à la taille de la fenêtre, via des constantes de ratio :
 
 ```java
 private static final double CARD_WIDTH_RATIO    = 0.09d;
@@ -173,9 +170,35 @@ private static final double GAP_RATIO           = 0.012d;
 
 Cela rend l'interface redimensionnable sans recalcul manuel. La détection du clic sur une carte repose sur le même système : on recalcule à la volée l'index de la carte à partir de la position X du pointeur et des dimensions courantes de la fenêtre.
 
+
 ---
 
-## 7. Difficultés rencontrées
+## 6. Contrôle du jeu
+
+Nous avons fait le choix de séparer le contrôleur en deux parties : 
+- Le `GameEngine` qui contient les opérations métiers principales comme remplir une main, jouer une main, défausser manuellement des cartes, vérifier la fin d'un blind/d'une partie, etc...
+- Le `GameController` qui s'occupe uniquement de la boucle d'événements et de l'interaction avec l'utilisateur en appelant les méthodes du moteur.
+
+Nous avons choisi cette séparation pour garder la logique de jeu indépendante de l’interface. Cela rend également le code plus lisible et plus facile à faire évoluer.
+
+---
+
+# Partie 2 — Retour d'expérience
+
+## 1. Organisation du travail et répartition des tâches
+Nous avons travaillé avec Git, en nous répartissant les tâches en plusieurs branches feature/. 
+
+| Personne  | Tâches principales |
+| --- | --- |
+| Alexandre | model, domain, GameEngine et première version de GraphicView |
+| Julie | Logique de jeu GameController, ConsoleView, amélioration de GraphicView |
+
+L'avancement du travail était régulier (environ une pull request/semaine), avec des pull requests et des reviews mutuelles, ce qui permettait de corriger rapidement les erreurs et d’éviter des conflits trop importants.
+
+La répartition des tâches a été claire et assez équilibrée. Chacun a pu contribuer sur une partie bien définie du projet, tout en gardant une vue d’ensemble sur le fonctionnement global.  Les échanges étaient réguliers, notamment pour valider les choix de conception et s’assurer que les interfaces entre les modules restaient cohérentes avant d'intégrer de nouvelles fonctionnalités.
+
+
+## 2. Difficultés rencontrées
 
 **Dissociation de la logique et de l'affichage.** La tentation initiale était de mélanger état et rendu. Le refactoring vers une architecture MVC propre, avec un `GameEngine` dédié qui ne connaît pas la vue, a demandé plusieurs itérations (branches `feature/codebase-architecture`, `feature/refacto-beta`).
 
