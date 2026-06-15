@@ -7,81 +7,64 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 public interface Dealer {
+    record HandAnalysis(int baseChips, boolean isFlush, boolean isStraight,
+                        boolean hasFour, boolean hasThree, long pairCount) {
+    }
+
+    record CombinationRule(Predicate<HandAnalysis> condition, Planet planet,
+                           int baseChipsBonus, int baseMult,
+                           BiFunction<Integer, Integer, Combination> factory) {
+    }
+
+    List<CombinationRule> COMBINATION_RULES = List.of(
+            new CombinationRule(a -> a.isStraight() && a.isFlush(), Planet.NEPTUNE, 100, 8, StraightFlush::new),
+            new CombinationRule(HandAnalysis::hasFour, Planet.MARS, 60, 7, FourOfAKind::new),
+            new CombinationRule(a -> a.hasThree() && a.pairCount() == 1, Planet.TERRE, 40, 4, FullHouse::new),
+            new CombinationRule(HandAnalysis::isFlush, Planet.JUPITER, 35, 4, Flush::new),
+            new CombinationRule(HandAnalysis::isStraight, Planet.SATURNE, 30, 4, Straight::new),
+            new CombinationRule(HandAnalysis::hasThree, Planet.VENUS, 30, 3, ThreeOfAKind::new),
+            new CombinationRule(a -> a.pairCount() == 2, Planet.URANUS, 20, 2, TwoPair::new),
+            new CombinationRule(a -> a.pairCount() == 1, Planet.MERCURE, 10, 2, Pair::new),
+            new CombinationRule(_ -> true, Planet.PLUTON, 5, 1, HighCard::new)
+    );
+
     static Combination evaluate(Hand hand, Map<Planet, Integer> planets) {
         Objects.requireNonNull(hand);
         Objects.requireNonNull(planets);
         var cards = hand.cards();
-        var chipsOfCard = cards.stream().mapToInt(el->el.rank().value()).sum();
         if (cards.isEmpty() || cards.size() > 5) {
             throw new IllegalArgumentException("cards size must be between 1 and 5");
         }
-        var values = cards.stream().map(c -> c.rank().value()).sorted().toList();
+        var handAnalysis = analyzeHand(cards);
+        return selectCombination(handAnalysis, planets);
+    }
+
+    private static HandAnalysis analyzeHand(List<Card> cards) {
+        var baseChips = cards.stream().mapToInt(card -> card.rank().value()).sum();
+        var sortedValues = cards.stream().map(card -> card.rank().value()).sorted().toList();
         var suits = cards.stream().map(Card::suit).toList();
-        var counts = countByValue(values);
-        var isFlush = false;
-        var isStraight = false;
-        if (cards.size() == 5) {
-            isFlush = suits.stream().distinct().count() == 1;
-            isStraight = isStraight(values);
-        }
-        var hasFour = counts.containsValue(4);
-        var hasThree = counts.containsValue(3);
-        var pairs = counts.values().stream().filter(v -> v == 2).count();
-        if (isStraight && isFlush) {
-            return new StraightFlush(
-                    chipsOfCard + 100 + bonusChips(Planet.NEPTUNE, planets),
-                    8 + bonusMult(Planet.NEPTUNE, planets)
-            );
-        }
-        if (hasFour) {
-            return new FourOfAKind(
-                    chipsOfCard + 60 + bonusChips(Planet.MARS, planets),
-                    7 + bonusMult(Planet.MARS, planets)
-            );
-        }
-        if (hasThree && pairs == 1) {
-            return new FullHouse(
-                    chipsOfCard + 40 + bonusChips(Planet.TERRE, planets),
-                    4 + bonusMult(Planet.TERRE, planets)
-            );
-        }
-        if (isFlush) {
-            return new Flush(
-                    chipsOfCard + 35 + bonusChips(Planet.JUPITER, planets),
-                    4 + bonusMult(Planet.JUPITER, planets)
-            );
-        }
-        if (isStraight) {
-            return new Straight(
-                    chipsOfCard + 30 + bonusChips(Planet.SATURNE, planets),
-                    4 + bonusMult(Planet.SATURNE, planets)
-            );
-        }
-        if (hasThree) {
-            return new ThreeOfAKind(
-                    chipsOfCard + 30 + bonusChips(Planet.VENUS, planets),
-                    3 + bonusMult(Planet.VENUS, planets)
-            );
-        }
-        if (pairs == 2) {
-            return new TwoPair(
-                     chipsOfCard + 20 + bonusChips(Planet.URANUS, planets),
-                    2 + bonusMult(Planet.URANUS, planets)
-            );
-        }
-        if (pairs == 1) {
-            return new Pair(
-                    chipsOfCard + 10 + bonusChips(Planet.MERCURE, planets),
-                    2 + bonusMult(Planet.MERCURE, planets)
-            );
-        }
-        return new HighCard(
-                chipsOfCard + 5 + bonusChips(Planet.PLUTON, planets),
-                1 + bonusMult(Planet.PLUTON, planets)
-        );
+        var countsByValue = countByValue(sortedValues);
+        var isFlush = cards.size() == 5 && suits.stream().distinct().count() == 1;
+        var isStraight = cards.size() == 5 && isStraight(sortedValues);
+        var hasFour = countsByValue.containsValue(4);
+        var hasThree = countsByValue.containsValue(3);
+        var pairCount = countsByValue.values().stream().filter(count -> count == 2).count();
+        return new HandAnalysis(baseChips, isFlush, isStraight, hasFour, hasThree, pairCount);
+    }
+
+    private static Combination selectCombination(HandAnalysis analysis, Map<Planet, Integer> planets) {
+        return COMBINATION_RULES.stream()
+                .filter(rule -> rule.condition().test(analysis))
+                .findFirst()
+                .map(rule -> rule.factory().apply(
+                        analysis.baseChips() + rule.baseChipsBonus() + bonusChips(rule.planet(), planets),
+                        rule.baseMult() + bonusMult(rule.planet(), planets)))
+                .orElseThrow();
     }
 
     private static int bonusChips(Planet planet, Map<Planet, Integer> planets) {
@@ -99,9 +82,7 @@ public interface Dealer {
         var sorted = values.stream().sorted().toList();
         var isNormalStraight = IntStream.range(0, 4)
                 .allMatch(i -> sorted.get(i + 1) - sorted.get(i) == 1);
-
         var isWheel = sorted.equals(List.of(2, 3, 4, 5, 14));
-
         return isNormalStraight || isWheel;
     }
 
@@ -112,6 +93,4 @@ public interface Dealer {
         }
         return counts;
     }
-
-
 }
